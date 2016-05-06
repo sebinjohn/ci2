@@ -84,6 +84,7 @@ function do_build_doc() {
 
     echo "Creating documentation..."
     echo $PWD
+    echo $SBT
     $SBT -Dsbt.global.base=$CI_BUILD_DIR \
         "set uniform.docRootUrl := \"$docUrlRoot\"" \
         "set uniform.docSourceUrl := \"$docSourceUrlTemplate\"" \
