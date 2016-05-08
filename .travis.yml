@@ -1,12 +1,27 @@
 language: ruby
+
 rvm:
-- 2.2.0
+  - 2.2.0
+
 cache:
   directories:
-  - $HOME/.ivy2
-  - $HOME/.m2
+    - $HOME/.ivy2
+    - $HOME/.m2
+
 before_script:
-- gem install bashcov
-- gem install coveralls
+  - gem install bashcov
+  - gem install coveralls
+
 script:
-- bashcov -- ./test.bsh
+  - bashcov -- ./test.bsh
+  - tar -X .exclude -C ../ -cvzf /tmp/ci2.tar.gz ci2
+  - tar -xvzf /tmp/ci2.tar.gz
+
+after_success:
+  - ./setup-version.bsh
+  - mv /tmp/ci2.tar.gz ci2-$(cat VERSION).tar.gz
+  - ./ci-release.bsh ./artifactory-release.sh private-binaries/zbi/ci2 ci2-$(cat VERSION).tar.gz
+
+env:
+  global:
+    - secure: "XQxKwl3u/5sYVLPHrSpXwbo7Tjhnbr7n+L4uAlg1XpagJM8EDuzHnG/qv53fK/rILQ1/126fqh3Q1ZNBtPZNdEZYyoEyNkjNt7cPGiXXIL1UCq4DTM4ZRqYEYxIZ82DpfjF8IcOmKiIXONu/1Td5kKia66kk7e6sz8MfoIT47PMqmXJ03pJ/g8ghnErxmqwCcpQXlj9xfiRfF5hfaxymj871NQFT3vlyW/ImUjFrDuuIb4MmkbqDB95zKPfTTec4stli79tjdl8gRPwP+udOAbncnnQ/u28tSHclcA66+pDm/5nF1GA5+skXMYP/lRFPuA1xBEuIYsg9LCYmZjEVPwsgW9JAZPcZPxT0WI3wT6HxsVrkRl2lk6VnxB9vsuVFN33gSoAfhKnCTLsZBY35nMIO0RJTKUdIoSv++agnsKiE8Yad2Z46DeaDsIQDRA47YDA39HLU+SHhlSu4hs+BwBXLCQL/tVQtE8wz5cO60/J3TckxaW6iZpmHyEC1jl4GQWX9pB8M0Ocftym2eWb+cNZAi65LVUG+r2gTTIGfnPYZ+GM5Ottwj5Okkd9rTNCNBwP5Dmf3Qf9+bP2SbOMzDbR8APL8S0PJOa8GJObWe2Xu09ngMQxUSRS4FOH+0SQTDQkemxiToWnLg/6tLz+Y1A1LoP5k3BMfcmgCUmFiDBY="

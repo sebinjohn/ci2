@@ -1,0 +1,11 @@
+.*
+.git
+boot
+NEW_VERSION
+README.md
+staging
+tests
+test.bsh
+tmp-*
+tmpsbt-*
+wvtest.sh
