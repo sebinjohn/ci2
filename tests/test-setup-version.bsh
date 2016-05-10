@@ -1,0 +1,20 @@
+#!/bin/bash -u
+
+# Test framework
+. ./wvtest.sh
+
+tmpdir=$(mktemp -d -p .)
+echo "1.0.0" > $tmpdir/VERSION
+cd $tmpdir
+
+versionOrig=$(cat VERSION)
+# Check command works
+WVPASS ../setup-version.bsh
+# Check command modifies version
+WVPASSNE "$(cat VERSION)" "$versionOrig"
+# Check command fails properly
+rm VERSION
+WVFAIL ../setup-version.bsh
+
+cd ..
+rm -rf $tmpdir

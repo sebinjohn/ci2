@@ -1,0 +1,45 @@
+#!/bin/bash -u
+# Test the sbt-ci-deploy script. This is not comprehensive, but checks the logic
+# of when and how it should deploy things.
+
+# Test framework
+. ./wvtest.sh
+
+ORIG_PATH=$PATH
+
+TMPDIR=$(mktemp -d -p . tmpsbt-ci-deploy-tmpXXXXXXXX)
+TMPPATH=$(mktemp -d -p . tmpsbt-ci-deploy-pathXXXXXXXX)
+export PATH=$TMPPATH:$ORIG_PATH
+
+# Setup a fake sbt path
+touch $TMPPATH/sbt
+chmod +x $TMPPATH/sbt
+
+# Check failure scenarios
+WVFAIL ./sbt-ci-deploy.bsh
+WVFAIL ./sbt-ci-deploy.bsh maven
+WVFAIL ./sbt-ci-deploy.bsh maven http://someurl
+WVFAIL ./sbt-ci-deploy.bsh unsupported http://someurl somerepo
+
+# Check we don't try to publish on non-master but do return success
+REAL_CI_BRANCH=$CI_BRANCH
+export CI_BRANCH=do-not-publish
+WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo
+WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo
+
+# Setup a fake sbt binary to confirm release behavior
+cat << EOF > $TMPPATH/sbt
+#!/bin/bash
+# This is a fake sbt binary for testing purposes. It always succeeds.
+echo "fake-sbt: \$@"
+exit 0
+EOF
+
+# Check we invoke sbt successfully in both scenarios
+export CI_BRANCH=master
+WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo
+WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo project1 project2 project3
+WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo
+WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo project1 project2 project3
+
+rm -rf $TMPPATH $TMPDIR

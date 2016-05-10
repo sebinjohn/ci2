@@ -1,0 +1,26 @@
+#!/bin/bash -u
+
+# Test framework
+. ./wvtest.sh
+
+tmpdir=$(mktemp -d -p .)
+echo -e "version in ThisBuild := \"1.0.0\"\nuniqueVersionSettings" > $tmpdir/version.sbt
+cd $tmpdir
+
+. ./lib-ci
+
+versionOrig=$(cat version.sbt)
+# Check command works
+WVPASS ../sbt-ci-setup-version.bsh
+# Check command modifies version
+WVPASSNE "$(cat version.sbt)" "$versionOrig"
+# Check input string comes out broadly correctly.
+WVPASS grep -oP "version in ThisBuild := \"1.0.0.*?\"" version.sbt
+# Check file has only a single line in it (version string above)
+WVPASS [ "$(cat version.sbt | wc -l)" = "1" ]
+# Check command fails properly
+rm version.sbt
+WVFAIL ../sbt-ci-setup-version.bsh
+
+cd ..
+rm -rf $tmpdir

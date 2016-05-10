@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Always show the CI env
+echo "Dumping CI environment..."
+. ./lib-ci
+CI_Env_Dump
+
+# Run the tests
+for i in $(find tests -mindepth 1 -name 't*' -type f -print | sort); do
+    bash $i
+    if [ $? != 0 ]; then
+        exit 1
+    fi
+done

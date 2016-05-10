@@ -1,0 +1,117 @@
+#!/bin/bash -u
+# Test the dockermake script.
+
+# Test framework
+. ./wvtest.sh
+
+ORIG_PATH=$PATH
+
+TMPDIR=$PWD/$(mktemp -d -p . tmpdockermake-tmpXXXXXXXX)
+TMPPATH=$PWD/$(mktemp -d -p . tmpdockermake-pathXXXXXXXX)
+export PATH=$TMPPATH:$ORIG_PATH
+
+# Setup a fake docker path
+touch $TMPPATH/docker
+chmod +x $TMPPATH/docker
+
+WORKDIR=$(mktemp -d -p . workdockermake-tmpXXXXXXXX)
+
+cd $WORKDIR
+
+# Check the script fails properly
+WVFAIL ../dockermake.bsh
+WVFAIL ../dockermake.bsh unsupported
+
+# Test docker build part
+mkdir tmpDOCKERIMAGE
+touch tmpDOCKERIMAGE/Dockerfile
+
+mkdir tmpDOCKERIMAGE2
+touch tmpDOCKERIMAGE2/Dockerfile
+
+export PREFIX=PREFIX
+export http_proxy=fakeproxy
+
+# Setup a fake docker binary to check the command invocation
+cat << EOF > $TMPPATH/docker
+#!/bin/bash
+# This is a fake docker binary for testing purposes.
+echo "fake-docker: \$@"
+for i in \$@; do
+    dest=result_\$i
+done
+echo \$@ > $TMPDIR/\$dest
+EOF
+
+# Do a build then check the file fake-docker writes to see what the input args
+# were.
+WVPASS ../dockermake.bsh build --build-arg=somearg1=somevalue1 \
+        --build-arg somearg2=somevalue2
+
+# Image 1
+dockerArgs=( $(cat $TMPDIR/result_tmpDOCKERIMAGE) )
+
+expected=(\
+    "build" \
+    "--build-arg=http_proxy=fakeproxy" \
+    "--build-arg=https_proxy=fakeproxy" \
+    "--build-arg=ftp_proxy=fakeproxy" \
+    "--build-arg=somearg1=somevalue1" \
+    "--build-arg" \
+    "somearg2=somevalue2" \
+    "-t" \
+    "PREFIXtmpDOCKERIMAGE:$(cat VERSION)" \
+    "tmpDOCKERIMAGE" \
+)
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
+
+# Image 2
+dockerArgs=( $(cat $TMPDIR/result_tmpDOCKERIMAGE2) )
+
+expected=(\
+    "build" \
+    "--build-arg=http_proxy=fakeproxy" \
+    "--build-arg=https_proxy=fakeproxy" \
+    "--build-arg=ftp_proxy=fakeproxy" \
+    "--build-arg=somearg1=somevalue1" \
+    "--build-arg" \
+    "somearg2=somevalue2" \
+    "-t" \
+    "PREFIXtmpDOCKERIMAGE2:$(cat VERSION)" \
+    "tmpDOCKERIMAGE2" \
+)
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
+
+# Test building images in the order they are specified on the command line
+# and also only the command line specified ones.
+TMPPATHORDER=$(mktemp -d -p . tmpdockermake-pathXXXXXXXX)
+export PATH=$TMPPATHORDER:$ORIG_PATH
+
+# Pre-req
+mkdir tmpDOCKERIMAGEyyy
+touch tmpDOCKERIMAGEyyy/Dockerfile
+
+# Dependant
+mkdir tmpDOCKERIMAGExxx
+touch tmpDOCKERIMAGExxx/Dockerfile
+
+# Setup a fake docker binary which fails if the pre-req doesn't exist
+cat << EOF > $TMPPATHORDER/docker
+#!/bin/bash
+# Check if the pre-req file generated first
+[ "\$7" = "tmpDOCKERIMAGExxx" ] && [ ! -e "$TMPDIR/result_tmpDOCKERIMAGEyyy" ] && exit 1
+
+# This is a fake docker binary for testing purposes.
+echo "fake-docker: \$@"
+echo \$@ > $TMPDIR/result_\$7
+exit 0
+EOF
+chmod +x $TMPPATHORDER/docker
+
+WVPASS ../dockermake.bsh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
+
+cd ..
+
+rm -rf $TMPPATH $TMPDIR $TMPPATHORDER $WORKDIR
