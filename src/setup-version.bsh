@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #   Copyright 2014 Commonwealth Bank of Australia
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,16 +28,6 @@ function import() {
 
 import lib-ci
 
-if [ ! -f VERSION ]; then
-    echo "VERSION file not found." 1>&2
-    exit 1
-fi
-
-new_version=$(Version_Get $(cat VERSION))
-if [ -z $new_version ]; then
-    exit 1
-fi
-echo "Version Mapped: $version => $new_version"
-echo "$new_version" > VERSION
+Version_Write_New
 
 exit 0

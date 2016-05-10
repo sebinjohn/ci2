@@ -74,11 +74,16 @@ if [ -z "$version" ]; then
     exit 1
 fi
 
+GIT_EMAIL=${GIT_EMAIL?"is not defined"}
+GIT_USERNAME=${GIT_USERNAME?"is not defined"}
+
 echo "" >> $dir/_config.yml
 sed -i '/^releaseVersion: .*/d' $dir/_config.yml
 echo "releaseVersion: $version" >> $dir/_config.yml
 
 if [ $CI_BRANCH = "master" ]; then
+    git config user.email "${GIT_EMAIL}"
+    git config user.name "${GIT_USERNAME}"
     Publish_Subdirectory_To_Branch $branch "$dir" "$commit_msg"
 else
     echoerr "Not publishing because branch is not master."

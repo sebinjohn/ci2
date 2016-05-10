@@ -26,6 +26,15 @@ export ${CI_SYSTEM}_PULL_REQUEST=false
 echo $(Version_Get 1.0.0) > NEW_VERSION
 echo "NEW_VERSION=$(cat NEW_VERSION)"
 WVPASS grep -oP "1.0.0-\d{14}-adc83b1" NEW_VERSION
+rm NEW_VERSION
+
+# On a branch with a / in the name
+export ${CI_SYSTEM}_BRANCH=test/branch
+export ${CI_SYSTEM}_PULL_REQUEST=false
+echo $(Version_Get 1.0.0) > NEW_VERSION
+echo "NEW_VERSION=$(cat NEW_VERSION)"
+WVPASS grep -oE "1.0.0-[0-9]{14}-adc83b1-test_branch" NEW_VERSION
+rm NEW_VERSION
 
 # On a branch
 export ${CI_SYSTEM}_BRANCH=testbranch
@@ -68,6 +77,12 @@ unset RELEASE_BRANCHES
 echo "IS_RELEASE=$(Is_Release)"
 WVPASS [ $(Is_Release) == 1 ]
 
+# Pull request to a release branch
+export ${CI_SYSTEM}_BRANCH=master
+export ${CI_SYSTEM}_PULL_REQUEST=true
+echo "IS_RELEASE=$(Is_Release)"
+WVPASS [ $(Is_Release) == 1 ]
+
 # Local CI should be enabled when we enable the flag
 export ENABLE_LOCAL_CI=yes
 WVPASS CI_Env_Adapt "LOCAL"
@@ -103,4 +118,3 @@ chmod +x .test_lib_ci_atexit_fail.bsh
 WVPASS ./.test_lib_ci_atexit_fail.bsh
 WVPASS [ ! -e .made_by_atexit ]
 rm .test_lib_ci_atexit_fail.bsh
-

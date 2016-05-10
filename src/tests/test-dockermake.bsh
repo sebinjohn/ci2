@@ -6,17 +6,21 @@
 
 ORIG_PATH=$PATH
 
-TMPDIR=$(mktemp -d -p . tmpdockermake-tmpXXXXXXXX)
-TMPPATH=$(mktemp -d -p . tmpdockermake-pathXXXXXXXX)
+TMPDIR=$PWD/$(mktemp -d -p . tmpdockermake-tmpXXXXXXXX)
+TMPPATH=$PWD/$(mktemp -d -p . tmpdockermake-pathXXXXXXXX)
 export PATH=$TMPPATH:$ORIG_PATH
 
 # Setup a fake docker path
 touch $TMPPATH/docker
 chmod +x $TMPPATH/docker
 
+WORKDIR=$(mktemp -d -p . workdockermake-tmpXXXXXXXX)
+
+cd $WORKDIR
+
 # Check the script fails properly
-WVFAIL ./dockermake.bsh
-WVFAIL ./dockermake.bsh unsupported
+WVFAIL ../dockermake.bsh
+WVFAIL ../dockermake.bsh unsupported
 
 # Test docker build part
 mkdir tmpDOCKERIMAGE
@@ -41,7 +45,7 @@ EOF
 
 # Do a build then check the file fake-docker writes to see what the input args
 # were.
-WVPASS ./dockermake.bsh build --build-arg=somearg1=somevalue1 \
+WVPASS ../dockermake.bsh build --build-arg=somearg1=somevalue1 \
         --build-arg somearg2=somevalue2
 
 # Image 1
@@ -106,7 +110,8 @@ exit 0
 EOF
 chmod +x $TMPPATHORDER/docker
 
-WVPASS ./dockermake.bsh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
+WVPASS ../dockermake.bsh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
 
-rm -rf $TMPPATH $TMPDIR $TMPPATHORDER tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx \
-    tmpDOCKERIMAGE tmpDOCKERIMAGE2
+cd ..
+
+rm -rf $TMPPATH $TMPDIR $TMPPATHORDER $WORKDIR

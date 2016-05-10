@@ -162,7 +162,7 @@ function Version_Get() {
         exit 1
     fi
 
-    local branch=$CI_BRANCH
+    local branch=${CI_BRANCH//[^[:alnum:]_.-]/_}
     local ts=$(date "+%Y%m%d%H%M%S")
     local commitish=${CI_COMMIT:0:7}
     local version="$source_version-$ts-$commitish"
@@ -176,13 +176,31 @@ function Version_Get() {
     fi
 }
 
+# Generate a new VERSION file
+# Will check for the VERSION file existing. Errors if not found
+function Version_Write_New() {
+  if [[ ! -f ${PWD}/VERSION ]]; then
+      echo "${PWD}/VERSION file not found." 1>&2
+      exit 1
+  fi
+
+  new_version=$(Version_Get $(cat VERSION))
+  if [[ -z $new_version ]]; then
+      exit 1
+  fi
+  echo "Version Mapped: $version => $new_version"
+  echo "$new_version" > VERSION
+  VERSION=$new_version
+}
+
+
 # Checks if we are on a release branch.
 # Returns 0 iff we are on a release branch and 1 otherwise.
 # Master is a release branch by default.
 function Is_Release() {
     CI_Env_Adapt $(CI_Env_Get)
 
-    if [ $CI_BRANCH == "master" ]; then
+    if [[ $CI_BRANCH == "master" && $CI_PULL_REQUEST == false ]]; then
       echo 0
     elif [[ $CI_PULL_REQUEST == false && $(Array_Contains "$CI_BRANCH" "${RELEASE_BRANCHES[@]}") == 0 ]]; then
         echo 0
