@@ -34,13 +34,13 @@ git symbolic-ref HEAD refs/heads/master || exit 1
 
 # Test that we fail when there is no git remote.
 export FORCE_PUBLISH=yes
-WVFAIL ../../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
+WVFAIL ../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
 
 # Make a git remote to allow the script to find one
 git remote add origin $(readlink -f $TMPREMOTE) || exit 1
 
 # This should now run correctly.
-WVPASS ../../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
+WVPASS ../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
 
 # Remove temporary directories
 rm -rf .gitkeep .git $TMPBASE $TMPREMOTE
