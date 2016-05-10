@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -9,7 +9,7 @@ set -e
 # which is part of a pull request.
 #
 # example call:
-#   ./gh-commit-comment.sh -e http://code.br.zbi.cba/api/v3 -u zbi-ci -p xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -r ZBI/zbi-infra-dev -s ad9e0fadf1658ecf0fac0068c4e923ee26e73bc3 -f gh-comment.json
+#   ./gh-commit-comment.bsh -e http://code.br.zbi.cba/api/v3 -u zbi-ci -p xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -r ZBI/zbi-infra-dev -s ad9e0fadf1658ecf0fac0068c4e923ee26e73bc3 -f gh-comment.json
 #
 # please see the comments below for details on each command line flag
 #

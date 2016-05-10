@@ -68,10 +68,10 @@ sed -i '/^releaseVersion: .*/d' src/site/_config.yml
 echo "releaseVersion: $version" >> src/site/_config.yml
 
 if [ -z $SBT ]; then
-    if [ -x "sbt" ]; then
-        SBT="sbt"
-    elif [ -x "./sbt" ]; then
+    if [ -x "./sbt" ]; then
         SBT="./sbt"
+    elif [ -x "sbt" ]; then
+        SBT="sbt"
     else
         echoerr "sbt is not specified by SBT env var, nor found. Aborting."
         exit 1
