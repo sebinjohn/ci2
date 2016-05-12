@@ -13,15 +13,14 @@ CI_SYSTEM=$(CI_Env_Get)
 
 ORIG_PATH=$PATH
 
-TMPDIR=$(mktemp -d -p . tmpdockersupport-dirXXXXXXXX)
-TMPPATH=$(mktemp -d -p . tmpdockersupport-pathXXXXXXXX)
+MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
+MYTMPPATH=$( Mktemp_Portable dir ${PWD} )
 
-echo WD=$TMPDIR
-echo TMPPATH=$TMPPATH
+echo MYTMPPATH=$MYTMPPATH
 
 #--------------------- Setup Fake environment -------------
-cd $TMPDIR
-export PATH=../$TMPPATH:$ORIG_PATH
+cd $MYTMPDIR
+export PATH=$MYTMPPATH:$ORIG_PATH
 
 #
 # get a few things
@@ -37,12 +36,12 @@ chmod +x ci-publish-site.bsh
 #----------------------------------------------------
 
 # Setup a fake docker path
-touch ../$TMPPATH/docker
-chmod +x ../$TMPPATH/docker
+touch $MYTMPPATH/docker
+chmod +x $MYTMPPATH/docker
 
 #
 #
-cat << EOF > ../$TMPPATH/docker
+cat << EOF > $MYTMPPATH/docker
 #!/bin/bash
 # This is a fake docker binary for testing purposes.
 echo "fake-docker: \$@"
@@ -52,7 +51,7 @@ if [[ "\$MODE" == "login" ]]; then
   [ -d \$HOME/.docker ] || mkdir \$HOME/.docker
   echo \$REGISTRY_HOST > \$HOME/.docker/config.json
 fi
-echo \$@ > ../$TMPDIR/TEST_docker-\$MODE
+echo \$@ > $MYTMPDIR/TEST_docker-\$MODE
 EOF
 
 #
@@ -60,7 +59,7 @@ EOF
 cat << EOF > ci-publish-site.bsh
 #!/bin/bash
 echo "fake-site-publish: \$@"
-echo \$@ > ../$TMPDIR/TEST_ci-publish-site
+echo \$@ > $MYTMPDIR/TEST_ci-publish-site
 EOF
 
 #--------------------- Perform Tests -------------
@@ -111,7 +110,7 @@ WVPASS ./docker-support.bsh setup -l
 CI_Env_Adapt $(CI_Env_Get)
 
 export RELEASE_BRANCHES=${CI_BRANCH}
-export ${CI_SYSTEM}_PULL_REQUEST=false 
+export CI_PULL_REQUEST=false 
 . ./ci-env-vars.sh
 
 #
@@ -140,18 +139,18 @@ WVPASS ./docker-support.bsh publish -s
 # test - perform the setup but no login should have occurred
 #----------------------------------------------------
 
-rm ../$TMPDIR/TEST_docker-login
+rm $MYTMPDIR/TEST_docker-login
 rm $HOME/.docker/config.json
 WVPASS ./docker-support.bsh setup
 # make sure that login was not attempted
-WVPASS [ ! -f ./$TMPDIR/TEST_docker-login ]
+WVPASS [ ! -f ./$MYTMPDIR/TEST_docker-login ]
 WVPASS [ ! -f $HOME/.docker/config.json ]
 
 #----------------------------------------------------
 # test - Was docker login called ? 
 #----------------------------------------------------
 WVPASS ./docker-support.bsh setup -l
-dockerArgs=( $(cat ../$TMPDIR/TEST_docker-login) )
+dockerArgs=( $(cat $MYTMPDIR/TEST_docker-login) )
 expected=(\
     "login" \
     "-u" \
@@ -194,9 +193,11 @@ WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 
 # for the test
 . ./ci-env-vars.sh
+export ${CI_SYSTEM}_BRANCH=master
+export ${CI_SYSTEM}_PULL_REQUEST=false
 
 WVPASS ./docker-support.bsh publish -s
-pushArgs=( $(cat ../$TMPDIR/TEST_docker-push) )
+pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
 expected=(\
     "push" \
     "${REGISTRY_HOST}/${DOCKER_IMAGE}:${versionNew}" \
@@ -207,22 +208,22 @@ WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 # test - docker-support.bsh will call ci-publish-site,bsh .. so lets make sure that was called
 #----------------------------------------------------
 
-sitePublish=(  $( cat ../$TMPDIR/TEST_ci-publish-site ) )
+sitePublish=(  $( cat $MYTMPDIR/TEST_ci-publish-site ) )
 expected=( "_site" )
 WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
 
 #----------------------------------------------------
 # should not publish if not passed a -s
 #----------------------------------------------------
-rm ../$TMPDIR/TEST_ci-publish-site
+rm $MYTMPDIR/TEST_ci-publish-site
 WVPASS ./docker-support.bsh publish 
-WVPASS [ ! -f ../$TMPDIR/TEST_ci-publish-site ]
+WVPASS [ ! -f $MYTMPDIR/TEST_ci-publish-site ]
 
 #----------------------------------------------------
 # test - check rmi was called
 #----------------------------------------------------
 
-dockerRmiArgs=( $(cat ../$TMPDIR/TEST_docker-rmi) )
+dockerRmiArgs=( $(cat $MYTMPDIR/TEST_docker-rmi) )
 expected=(\
     "rmi" \ 
     "${DOCKER_TAG_NAME}" \
@@ -233,6 +234,6 @@ WVPASSEQ "$(echo ${dockerRmiArgs[@]})" "$(echo ${expected[@]})"
 # Cleanup
 #----------------------------------------------------
 cd ..
-rm -rf $TMPPATH $TMPDIR 
+rm -rf $MYTMPPATH $MYTMPDIR 
 
 echo "-------------- END $0"

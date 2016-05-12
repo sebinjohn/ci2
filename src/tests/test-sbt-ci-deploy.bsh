@@ -7,8 +7,7 @@
 
 ORIG_PATH=$PATH
 
-TMPDIR=$(mktemp -d -p . tmpsbt-ci-deploy-tmpXXXXXXXX)
-TMPPATH=$(mktemp -d -p . tmpsbt-ci-deploy-pathXXXXXXXX)
+TMPPATH=$( Mktemp_Portable dir )
 export PATH=$TMPPATH:$ORIG_PATH
 
 # Setup a fake sbt path
@@ -42,4 +41,4 @@ WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo project1 project2 proje
 WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo
 WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo project1 project2 project3
 
-rm -rf $TMPPATH $TMPDIR
+rm -rf $TMPPATH

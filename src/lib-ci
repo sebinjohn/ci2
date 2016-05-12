@@ -68,7 +68,7 @@ function CI_Env_Get() {
     elif [ "$DRONE" = "true" ]; then
         CI_SYSTEM=DRONE
     elif [ ! -z "$ENABLE_LOCAL_CI" ]; then
-        echo "CI System could not be identified - assuming local." 1>&2
+        echo "ENABLE_LOCAL_CI is set - Assuming Local." 1>&2
         CI_SYSTEM=LOCAL
     else
         echo "CI System could not be identified." 1>&2
@@ -99,7 +99,7 @@ function CI_Env_Adapt() {
         CI_BRANCH=$DRONE_BRANCH
         CI_COMMIT=$DRONE_COMMIT
         CI_BUILD_NUMBER=$DRONE_BUILD_NUMBER
-        CI_PULL_REQUEST=$DRONE_PULL_REQUEST
+        CI_PULL_REQUEST=${DRONE_PULL_REQUEST:-false}
         CI_JOB_NUMBER=$DRONE_JOB_NUMBER
         CI_BUILD_DIR=$DRONE_BUILD_DIR
         CI_BUILD_URL=$DRONE_BUILD_URL
@@ -110,17 +110,19 @@ function CI_Env_Adapt() {
             # This is here because we want monotonically increasing job and build
             # numbers, but we have no real way to get them. Using the date like this
             # is a good compromise for local use.
+
+            # The default values ${LOCAL...:-} are to support test overrides
             referenceTime=$(date +%Y%m%d%H%M%S)
             CI_NAME=local
-            CI_REPO=$(dirname $(pwd))
-            CI_BRANCH=$(git symbolic-ref HEAD | cut -d'/' -f3-)
-            CI_COMMIT=$(git rev-parse HEAD)
-            CI_BUILD_NUMBER=$referenceTime
-            CI_PULL_REQUEST=
-            CI_JOB_NUMBER=$referenceTime
-            CI_BUILD_DIR=$(pwd)
-            CI_BUILD_URL=
-            CI_TAG=$(git name-rev --name-only --tags HEAD | sed 's/^undefined$//')
+            CI_REPO=${LOCAL_REPO:-$(dirname $(pwd))}
+            CI_BRANCH=${LOCAL_BRANCH:-$(git symbolic-ref HEAD | cut -d'/' -f3-)}
+            CI_COMMIT=${LOCAL_COMMIT:-$(git rev-parse HEAD)}
+            CI_BUILD_NUMBER=${LOCAL_BUILD_NUMBER:-$referenceTime}
+            CI_PULL_REQUEST=${LOCAL_PULL_REQUEST:-false}
+            CI_JOB_NUMBER=${LOCAL_JOB_NUMBER:-$referenceTime}
+            CI_BUILD_DIR=${LOCAL_BUILD_DIR:-$(pwd)}
+            CI_BUILD_URL=${LOCAL_BUILD_URL:-""}
+            CI_TAG=${LOCAL_TAG:-$(git name-rev --name-only --tags HEAD | sed 's/^undefined$//')}
         else
             echo "CI System could not be identified. Failing." 1>&2
             exit 1
@@ -236,7 +238,7 @@ Publish_Subdirectory_To_Branch() {
     local commit_msg="$3"
     local remote="$4"
     
-    local directory="$(readlink -f $input_directory)"
+    local directory="$(readlink_f $input_directory)"
 
     if [ -z "$remote" ]; then
         # Figure out a default remote, or fail.
@@ -295,6 +297,37 @@ Publish_Subdirectory_To_Branch() {
     
     export GIT_DIR=$ORIG_GIT_DIR
     export GIT_WORK_TREE=$ORIG_GIT_WORK_TREE
+}
+
+#
+# we need a portable way of creating temp dirs and files on OSX and Linux
+#
+function Mktemp_Portable() {
+
+  local tmptype=$1 # file or dir
+  local tmppath=${2:-${TMPDIR:-/tmp}} # root path (optional) .. defaults to TMPDIR
+  local caller=$( basename $0 )
+
+  local tmpTemplate="${tmppath}/_tmp-${caller}.XXXXXXXXX"
+
+  if [[ ${tmptype} == "file" ]]; then 
+    theTmp=$( mktemp "${tmpTemplate}" )
+  elif [[ ${tmptype} == "dir" ]]; then 
+    theTmp=$( mktemp -d "${tmpTemplate}" )
+  else 
+    echo "usage: Mktemp_Portable [ file | dir ]" 1>&2 
+    exit 1
+  fi
+  echo ${theTmp}
+
+}
+
+#
+# readlink -f compatible OSX/Linux
+#
+
+readlink_f() {
+  perl -MCwd -e 'print (Cwd::abs_path shift); print "\n";' "$1"
 }
 
 set +o nounset

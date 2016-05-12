@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 #   Copyright 2016 Commonwealth Bank of Australia
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,9 @@ import lib-ci
 
 CI_Env_Adapt $(CI_Env_Get)
 
-dir=$(readlink -f $1)
+${1?"directory must be supplied"}
+dir=$(readlink_f $1)
+echo "[[[$dir]]]"
 branch="$2"
 commit_msg="$3"
 
@@ -78,7 +80,7 @@ GIT_EMAIL=${GIT_EMAIL?"is not defined"}
 GIT_USERNAME=${GIT_USERNAME?"is not defined"}
 
 echo "" >> $dir/_config.yml
-sed -i '/^releaseVersion: .*/d' $dir/_config.yml
+sed -i -e '/^releaseVersion: .*/d' $dir/_config.yml || exit 1
 echo "releaseVersion: $version" >> $dir/_config.yml
 
 if [ $CI_BRANCH = "master" ]; then
