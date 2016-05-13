@@ -1,0 +1,21 @@
+#!/bin/bash -u
+
+# Test framework
+. ./wvtest.sh
+
+ORIG_PWD=$PWD
+cd tests/test-bump-versions/scala
+
+# build.sbt
+WVPASS ../../../bump-scala-version.bsh "com.wix" "accord-specs2-3-x" "1.0"
+WVPASS grep '    "com.wix"       %% "accord-specs2-3-x"  % "1.0" % "test"' build.sbt
+
+# project/build.scala
+WVPASS ../../../bump-scala-version.bsh "org.apache.commons" "commons-lang3" "4.0"
+WVPASS grep '          , "org.apache.commons"     %  "commons-lang3"            % "4.0"' project/build.scala
+
+# project/plugins.sbt
+WVPASS ../../../bump-scala-version.bsh "au.com.cba.omnia" "humbug-plugin" "1.0"
+WVPASS grep 'addSbtPlugin("au.com.cba.omnia" % "humbug-plugin"      % "1.0")' project/plugins.sbt
+
+cd $ORIG_PWD
