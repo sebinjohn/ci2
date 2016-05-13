@@ -42,6 +42,8 @@ import lib-ci
 
 CI_Env_Adapt $(CI_Env_Get)
 
+SBT=$(which_sbt)
+
 # Gather the required parameters
 publishStyle=$1
 shift
@@ -99,11 +101,11 @@ EOF
     credentialsArg="set credentials += Credentials(new java.io.File(\"sbt.credentials\"))"
     
     if [ $# -eq 0 ]; then
-        sbt "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
+        $SBT "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
     else
         for project in $@; do
             echo "Publishing $project ..."
-            sbt ";project $project" "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
+            $SBT ";project $project" "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
         done        
     fi
 }
