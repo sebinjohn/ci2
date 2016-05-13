@@ -5,7 +5,6 @@
 
 Scripts used for Continuous Integration
 
-
 ## Overview
 
 ci2 is a "set" of CI helper scripts. To assist with pushing, and publishing versions of code.
@@ -19,7 +18,7 @@ curl -H 'X-JFrog-Art-Api: <API_KEY>' "https://commbank.artifactoryonline.com/com
 ## Scripts 
 
 * ``lib-ci`` - Common BASH functions used by all the scripts
-* ``artifactory-release.sh - release a file (binary, archive, etc) to an artifactory server
+* ``artifactory-release.sh`` - release a file (binary, archive, etc) to an artifactory server
 * ``bump-docker-version.bsh`` - support script to set a version of Dockerfile, before building.
 * ``bump-scala-version.bsh`` - support script to set a versions in scala builds, before building.
 * ``bump-scala-version-depend.bsh`` - support script to set a versions in scala builds, before building.
