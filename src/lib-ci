@@ -326,8 +326,28 @@ function Mktemp_Portable() {
 # readlink -f compatible OSX/Linux
 #
 
-readlink_f() {
+function readlink_f() {
   perl -MCwd -e 'print (Cwd::abs_path shift); print "\n";' "$1"
 }
 
+#
+# Locate SBT or fail
+#
+function which_sbt() {
+
+  if [ -z $SBT ]; then
+      sbtOnPath=$( which sbt )
+      if [ -x "./sbt" ]; then
+          SBT="./sbt"
+      elif [ -x "${sbtOnPath}" ]; then
+          SBT="${sbtOnPath}"
+      else
+          echoerr "sbt is not specified by SBT env var, nor found. Aborting."
+          exit 1
+      fi
+  fi
+  echo ${SBT}
+}
+
 set +o nounset
+
