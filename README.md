@@ -1,94 +1,48 @@
-ci
-==
+# ci2
 
-[![Build Status](https://travis-ci.org/CommBank/ci.svg?branch=master)](https://travis-ci.org/CommBank/ci)
-[![Coverage Status](https://coveralls.io/repos/github/CommBank/ci/badge.svg?branch=master)](https://coveralls.io/github/CommBank/ci?branch=master)
+[![Build Status](https://travis-ci.org/CommBank/ci2.svg?branch=master)](https://travis-ci.org/CommBank/ci2)
+[![Coverage Status](https://coveralls.io/repos/github/CommBank/ci2/badge.svg?branch=master)](https://coveralls.io/github/CommBank/ci2?branch=master)
 
 Scripts used for Continuous Integration
 
 
-Travis Setup
-==========
+## Overview
 
-1. Create a `.travis.yml` file in the top level directory of the project. Use some of the other projects' `.travis.yml` 
-   file as a template.
-2. Install the travis client. Instructions are available at https://github.com/travis-ci/travis.rb. **Please be aware that the installation and usage of the travis client often result in network and SSL Errors from within the office network (including wifi). Tethering to  a 4G device is one workaround for this.**
-3. Login. `travis login --pro` or `travis login --org`.
-4. From project folder (same directory as `.travis.yml`), enable your project with Travis CI by running the command 
-   `travis enable --pro` or `travis enable --org`.
-5. Add the encrypted artifactory password. By running this command in the same directory as `.travis.yml`. `travis 
-   encrypt ARTIFACTORY_PASSWORD=...`.
-6. [Optional to publish documentation] **For public repos only** Create a branch called `gh-pages` for the project and push it to github. Then add the private key for omnia-bamboo as an encrypted file.
-   1. Get the private key
-   1. Create a folder in the repo `.travis`
-   1. `travis encrypt-file <path-private-key> .travis/deploy-key.enc -w .travis/deploy-key.pem --add`
-   1. For sbt builds add the `ci/sbt-gh-pages-ssh.sh` to the build commands.
+ci2 is a "set" of CI helper scripts. To assist with pushing, and publishing versions of code.
 
-Publishing a Branch to Artifactory
-----------------------------------
-
-If you are using the `sbt-deploy-to.sh` script, it will attempt to publish the `master` branch of your 
-project to Artifactory automatically. If you would like to publish any other branches (for testing purposes,
-for example), you can add them as a space-separated string to the `RELEASE_BRANCHES` environment variable.
-For example, to publish branches named `CDH5` and `realtime` *in addition to* `master`, you would set 
-`RELEASE_BRANCHES` to `"CDH5 realtime"`.
-
-You can set `RELEASE_BRANCHES` via the Travis web UI (https://docs.travis-ci.com/user/environment-variables/#Defining-Variables-in-Repository-Settings), or
-via the command line Travis client:
-```
-travis env set RELEASE_BRANCHES "CDH5 realtime"
-```
-
-Scala Example
---------------------
+To depend on this REPO add the following to your ``.travis.yml`` / ``.drone.yml``
 
 ```
-language: scala
-jdk:
-- oraclejdk7
-cache:
-  directories:
-  - $HOME/.ivy2
-  - $HOME/.m2
-install:
-- git clone https://github.com/CommBank/ci.git
-- chmod ugo+x  ci/*
-- ci/sbt-setup.sh
-- ci/sbt-setup-version.sh
-script:
-- sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci ';  project all; test; package; project
-  example; assembly; project tools; assembly' && ci/sbt-deploy-to.sh ext-releases-local && ci/sbt-gh-pages-ssh.sh
-after_script:
-- rm -rf ci
-env:
-  global:
-  - secure: ...
-  - secure: ...
+curl -H 'X-JFrog-Art-Api: <API_KEY>' "https://commbank.artifactoryonline.com/commbank/binaries/ci-<VERSION>.tar.gz" | tar xfz
 ```
 
-Haskell OS X Example
---------------------
+## Scripts 
 
-```
-# needed to use the os x build agent.
-language: objective-c
+* ``lib-ci`` - Common BASH functions used by all the scripts
+* ``artifactory-release.sh - release a file (binary, archive, etc) to an artifactory server
+* ``bump-docker-version.bsh`` - support script to set a version of Dockerfile, before building.
+* ``bump-scala-version.bsh`` - support script to set a versions in scala builds, before building.
+* ``bump-scala-version-depend.bsh`` - support script to set a versions in scala builds, before building.
+* ``bump-scala-version-val.bsh`` - support script to set a versions in scala builds, before building.
+* ``ci-nonrelease.bsh`` - Perform an action, only if the Branch/PR is a NON-Release Branch
+* ``ci-release.bsh`` - Perform the action, only if the Branch/PR is a Release Branch
+* ``ci-publish-site.bsh`` - Perform the 
+* ``dockermake.bsh`` - Build all ``Dockerfile`` images in the Repo 
+* ``docker-support.bsh`` - ``setup`` and ``publish`` docker images (implies a build step between each)
+* ``gh-commit-comment.bsh`` - uses the GitHub API to create a comment against a specific git commit-sha.
+* ``sbt-ci-build-doc.bsh`` - uses sbt to build documentation for the project
+* ``sbt-ci-deploy.bsh`` - uses sbt to deploy your artifact
+* ``sbt-ci-setup-version.bsh`` - sets up the correct "CI" version for the SBT project
+* ``setup-version.bsh`` - Replaces the VERSION file with a common ``ver-date-commish``
 
-os:
-  - osx
+## Writing New Scripts
 
-install:  
-- git clone https://github.com/CommBank/ci.git
-- chmod ugo+x  ci/*
-- ci/cabal-osx-setup.sh
+If you find a use case that does not match the above provided list, then please look at 
 
-script:
-- cabal install
-- ci/cabal-deploy.sh dist/build/codetroll/codetroll ext-releases-local au/com/cba/omnia/codetroll
+* existing scripts; and
+* the matching ``src/tests/`` folder for examples of how to write tests for your new script
 
-```
-
-Principles
-==========
+## Principles
 
 These are some underlying principles for how we do CI and in particular how we design and utilise 
 these scripts.
