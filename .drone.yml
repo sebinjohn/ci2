@@ -1,4 +1,0 @@
-build:
-  image: docker.artifactory.br.zbi.cba/zbi/build-scala:0.1.0-20160418075450-9b6bdd2
-  commands:
-  - ./test.bsh
