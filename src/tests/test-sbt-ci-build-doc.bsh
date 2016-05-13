@@ -5,11 +5,13 @@
 # Test framework
 . ./wvtest.sh
 
+. ./lib-ci
+
 # Base dir for sbt
-TMPBASE=$(mktemp -d -p . tmpsbt-ci-build-doc-tmp_sbt_baseXXXXXXXX)
+TMPBASE=$( Mktemp_Portable dir )
 
 # This is our fake remote repo to send documentation to
-TMPREMOTE=$(mktemp -d -p . tmpsbt-ci-build-doc-tmp_git_remote_XXXXXXXX)
+TMPREMOTE=$( Mktemp_Portable dir )
 git init --bare $TMPREMOTE || exit 1
 
 # Test fixtures mean we need to know where we're running
@@ -18,7 +20,10 @@ if [[ ! -d "$SCRIPT_DIR" ]]; then SCRIPT_DIR="$PWD"; fi
 
 # Testing the test fixtures
 ORIG_PWD=$(pwd)
-cd $SCRIPT_DIR/test-sbt-ci-build-doc
+
+# cp our sample project over to the TMPBASE
+cp -av $SCRIPT_DIR/test-sbt-ci-build-doc ${TMPBASE}
+cd $TMPBASE/test-sbt-ci-build-doc
 
 ORIG_CI_BRANCH=$CI_BRANCH
 
@@ -34,15 +39,16 @@ git symbolic-ref HEAD refs/heads/master || exit 1
 
 # Test that we fail when there is no git remote.
 export FORCE_PUBLISH=yes
-WVFAIL ../../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
+WVFAIL ${ORIG_PWD}/sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
 
 # Make a git remote to allow the script to find one
-git remote add origin $(readlink -f $TMPREMOTE) || exit 1
+git remote add origin $(readlink_f $TMPREMOTE) || exit 1
 
 # This should now run correctly.
-WVPASS ../../sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
+WVPASS ${ORIG_PWD}/sbt-ci-build-doc.bsh "http://testroot" "http://testsourceroot"
+
+cd $ORIG_PWD
 
 # Remove temporary directories
 rm -rf .gitkeep .git $TMPBASE $TMPREMOTE
 
-cd $ORIG_PWD
