@@ -5,6 +5,8 @@
 # Test framework
 . ./wvtest.sh
 
+. ./lib-ci
+
 ORIG_PATH=$PATH
 
 TMPPATH=$( Mktemp_Portable dir )

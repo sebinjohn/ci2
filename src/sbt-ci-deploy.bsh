@@ -42,7 +42,7 @@ import lib-ci
 
 CI_Env_Adapt $(CI_Env_Get)
 
-SBT=$(which_sbt)
+SBT=$(which_sbt) || exit 1
 
 # Gather the required parameters
 publishStyle=$1
