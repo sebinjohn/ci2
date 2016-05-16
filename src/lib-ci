@@ -204,11 +204,20 @@ function Is_Release() {
 
     if [[ $CI_BRANCH == "master" && $CI_PULL_REQUEST == false ]]; then
       echo 0
-    elif [[ $CI_PULL_REQUEST == false && $(Array_Contains "$CI_BRANCH" "${RELEASE_BRANCHES[@]}") == 0 ]]; then
+    elif [[ $CI_PULL_REQUEST == false && $(Is_In_List "$CI_BRANCH" "${RELEASE_BRANCHES}") ]]; then
         echo 0
     else
         echo 1
     fi
+}
+
+#
+# Looks for 'item' in a 'string list of items item'
+#
+function Is_In_List() {
+  local item=$1;
+  local stringList=$2
+  echo $stringList | tr ' ' '\n' | grep -e "^${item}$"
 }
 
 # Check if a given input (argument 1) is in the list of arguments passed that

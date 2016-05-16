@@ -14,11 +14,25 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-set -e
+
+set -o pipefail
+
+# Library import helper
+function import() {
+    IMPORT_PATH="${BASH_SOURCE%/*}"
+    if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
+    . $IMPORT_PATH/$1
+    [ $? != 0 ] && echo "$1 import error" 1>&2 && exit 1
+}
+
+import lib-ci
+
+CI_Env_Adapt $(CI_Env_Get)
 
 REPO_PATH=$1
 ARTIFACT=$2
 METADATA=$3
+
 
 ARTIFACTORY_URL=${ARTIFACTORY_URL:-"https://commbank.artifactoryonline.com/commbank"}
 
@@ -26,6 +40,8 @@ if [ -z "$REPO_PATH" ] || [ -z "$ARTIFACT" ]; then
     echo "Upload an artifact to an Artifactory repository."
     echo "usage: $0 repo/path /local/path/to/artifact [meta1=val;meta2=val]"
     exit 1
+else 
+    echo "REPO_PATH=[${REPO_PATH}] - ARTIFACT=[${ARTIFACT}]"
 fi
 
 if [ -z "$ARTIFACTORY_API_KEY" ]; then
@@ -44,21 +60,21 @@ status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
 
 if [ "$status" = "404" ]; then
 
-    if [ "$TRAVIS_PULL_REQUEST" = "false" ] && [ "$TRAVIS_BRANCH" = "master" ]; then
+    if [ $(Is_Release) = 0 ]; then
         echo "Uploading '$ARTIFACT_NAME':"
-        curl --silent --fail \
+        curl \
             -H "$ARTIFACTORY_AUTH" \
             -T "$ARTIFACT" \
-            "$ARTIFACTORY_URL/$REPO_PATH/$ARTIFACT_NAME;$METADATA"
+            "$ARTIFACTORY_URL/$REPO_PATH/$ARTIFACT_NAME;$METADATA" || exit 1
     else
-        echo "Not on master. Nothing to deploy"
+        echo "Not a release branch; Not publishing. (See lib-ci:Is_Release)"
     fi
 
 elif [ "$status" = "200" ]; then
     echo "Error: Artifact named '$ARTIFACT_NAME' already exists!"
     exit 1
 else
-    echo "Error: Failed to determine artifact status of '$ARTIFACT_NAME'"
+    echo "Error: Failed to determine artifact status of '$ARTIFACT_NAME' [$status]"
     exit 1
 fi
 

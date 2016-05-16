@@ -65,16 +65,23 @@ WVPASS [ $(Is_Release) == 0 ]
 # On another branch specified as release branch
 export ${CI_SYSTEM}_BRANCH=testbranch
 export ${CI_SYSTEM}_PULL_REQUEST=false
-export RELEASE_BRANCHES=("other" "testbranch")
+export RELEASE_BRANCHES="other testbranch"
 echo "IS_RELEASE=$(Is_Release)"
 WVPASS [ $(Is_Release) == 0 ]
 
 # On master and with specified release branches
 export ${CI_SYSTEM}_BRANCH=master
 export ${CI_SYSTEM}_PULL_REQUEST=false
-export RELEASE_BRANCHES=("testbranch")
+export RELEASE_BRANCHES="testbranch"
 echo "IS_RELEASE=$(Is_Release)"
 WVPASS [ $(Is_Release) == 0 ]
+
+# On master and with specified release branches
+export ${CI_SYSTEM}_BRANCH=branch
+export ${CI_SYSTEM}_PULL_REQUEST=false
+export RELEASE_BRANCHES="testbranch branch-master"
+echo "IS_RELEASE=$(Is_Release)"
+WVPASS [ $(Is_Release) == 1 ]
 
 # Not on a release branch
 export ${CI_SYSTEM}_BRANCH=testbranch

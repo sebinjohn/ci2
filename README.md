@@ -41,6 +41,15 @@ If you find a use case that does not match the above provided list, then please 
 * existing scripts; and
 * the matching ``src/tests/`` folder for examples of how to write tests for your new script
 
+### Testing
+
+The Tests can be executed locally, (i.e. SANS a CI environment).
+
+```
+cd src/tests
+ENABLE_LOCAL_CI=1 ./test.bsh
+```
+
 ## Principles
 
 These are some underlying principles for how we do CI and in particular how we design and utilise 
@@ -54,4 +63,5 @@ these scripts.
 * We use CI scripts to set up custom version for builds in a way that is transparent to the build
   tooling. Users provide the semantic version in a way that is suitable for their particular tooling
   and the CI scripts append the commish and time stamp at the beginning of the build.
+
 
