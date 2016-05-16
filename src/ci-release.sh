@@ -13,10 +13,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
  
-# ci-nonrelease.bsh <commands>
+# ci-release.sh <commands>
 #
-# If the release check in `lib-ci` returns non-zero it will run the specified commands otherwise it will
-# not run the command and print a message saying it is a release branch.
+# If the release check in `lib-ci` returns 0 it will run the specified commands otherwise it will
+# not run the command and print a message saying it is not a release branch.
 
 set -o nounset
 
@@ -32,8 +32,8 @@ import lib-ci
 
 CI_Env_Adapt $(CI_Env_Get)
 
-if [ $(Is_Release) != 0 ]; then
+if [ $(Is_Release) = 0 ]; then
     eval "$@"
 else
-    echo "Release branch. Not running command."
+    echo "Not running command. Not a release branch"
 fi

@@ -13,20 +13,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# Bumps version number for depend statements i.e. `depend.omnia("omnia-test", "0.4.3-20160404081116-ec9a1e5")`
-# Usage bump-scala-version-depend.bsh group artifact version
+# Bumps version number for variables i.e. `val scalazVersion = "1.2"`
+# Usage bump-scala-version-val.sh valname version
 
 set -o nounset
 set -o errexit
 
 for f in *.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
+  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
 done
 
 for f in project/*.scala; do
-  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
+  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
 done
 
 for f in project/*.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
+  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
 done

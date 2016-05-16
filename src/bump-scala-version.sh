@@ -13,20 +13,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# Bumps version number for variables i.e. `val scalazVersion = "1.2"`
-# Usage bump-scala-version-val.bsh valname version
+# Bumps scala artifacts in the standard sbt format
+# Usage bump-scala-version.sh group artifact new_version
 
 set -o nounset
 set -o errexit
 
 for f in *.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
+  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
 done
 
 for f in project/*.scala; do
-  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
+  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
 done
 
 for f in project/*.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*val $1 += +\")[^\"]+/\1$2/g" $f
+  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
 done

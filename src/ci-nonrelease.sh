@@ -12,21 +12,28 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-# Bumps scala artifacts in the standard sbt format
-# Usage bump-scala-version.bsh group artifact new_version
+ 
+# ci-nonrelease.sh <commands>
+#
+# If the release check in `lib-ci` returns non-zero it will run the specified commands otherwise it will
+# not run the command and print a message saying it is a release branch.
 
 set -o nounset
-set -o errexit
 
-for f in *.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
-done
+# Library import helper
+function import() {
+    IMPORT_PATH="${BASH_SOURCE%/*}"
+    if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
+    . $IMPORT_PATH/$1
+    [ $? != 0 ] && echo "$1 import error" 1>&2 && exit 1
+}
 
-for f in project/*.scala; do
-  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
-done
+import lib-ci
 
-for f in project/*.sbt; do
-  [ -e $f ] && sed -i -r "s/(.*\"$1\" +%?% +\"$2\" +% +\")[^\"]+/\1$3/g" $f
-done
+CI_Env_Adapt $(CI_Env_Get)
+
+if [ $(Is_Release) != 0 ]; then
+    eval "$@"
+else
+    echo "Release branch. Not running command."
+fi

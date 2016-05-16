@@ -14,12 +14,12 @@ TMPFILE=$( Mktemp_Portable file )
 # Tests that the command will be run on release branches
 export ${CI_SYSTEM}_BRANCH=master
 export ${CI_SYSTEM}_PULL_REQUEST=false
-WVPASS ./ci-release.bsh touch $TMPFILE
+WVPASS ./ci-release.sh touch $TMPFILE
 WVPASS test -e $TMPFILE
 rm $TMPFILE
 
 # Tests that the command will not be run on release branches
 export ${CI_SYSTEM}_BRANCH=testbranch
 export ${CI_SYSTEM}_PULL_REQUEST=false
-WVPASS ./ci-release.bsh touch $TMPFILE
+WVPASS ./ci-release.sh touch $TMPFILE
 WVFAIL test -e $TMPFILE

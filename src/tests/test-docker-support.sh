@@ -25,11 +25,11 @@ export PATH=$MYTMPPATH:$ORIG_PATH
 #
 # get a few things
 #
-cp ../docker-support.bsh .
+cp ../docker-support.sh .
 cp ../lib-ci .
-cp ../setup-version.bsh .
-touch ci-publish-site.bsh 
-chmod +x ci-publish-site.bsh
+cp ../setup-version.sh .
+touch ci-publish-site.sh 
+chmod +x ci-publish-site.sh
 
 #----------------------------------------------------
 # Setup - create a fake docker binary to check the command invocation
@@ -56,7 +56,7 @@ EOF
 
 #
 #
-cat << EOF > ci-publish-site.bsh
+cat << EOF > ci-publish-site.sh
 #!/bin/bash
 echo "fake-site-publish: \$@"
 echo \$@ > $MYTMPDIR/TEST_ci-publish-site
@@ -66,8 +66,8 @@ EOF
 # Check the script fails properly
 #----------------------------------------------------
 
-WVFAIL ./docker-support.bsh
-WVFAIL ./docker-support.bsh unsupported
+WVFAIL ./docker-support.sh
+WVFAIL ./docker-support.sh unsupported
 
 #----------------------------------------------------
 # setup - test artefact version file
@@ -81,24 +81,24 @@ versionOrig=$( cat VERSION )
 #----------------------------------------------------
 # these should fail because a few environment vars are not setup
 
-WVFAIL ./docker-support.bsh setup 
-WVFAIL ./docker-support.bsh publish
+WVFAIL ./docker-support.sh setup 
+WVFAIL ./docker-support.sh publish
 
 # now let's get specific
 # ---- setup tests
-WVFAIL ./docker-support.bsh setup 
+WVFAIL ./docker-support.sh setup 
 export REGISTRY_HOST=someserver.foobar
-WVFAIL ./docker-support.bsh setup 
+WVFAIL ./docker-support.sh setup 
 export DOCKER_IMAGE=build/my-special-docker
-WVPASS ./docker-support.bsh setup 
+WVPASS ./docker-support.sh setup 
 
 
 # user/pass for a login
-WVFAIL ./docker-support.bsh setup -l
+WVFAIL ./docker-support.sh setup -l
 export REGISTRY_USERNAME=user
-WVFAIL ./docker-support.bsh setup -l
+WVFAIL ./docker-support.sh setup -l
 export REGISTRY_PASSWORD=user
-WVPASS ./docker-support.bsh setup -l
+WVPASS ./docker-support.sh setup -l
 
 # ---- publish tests
 #
@@ -117,7 +117,7 @@ export CI_PULL_REQUEST=false
 rm $HOME/.docker/config.json
 unset REGISTRY_USERNAME
 unset REGISTRY_PASSWORD
-WVFAIL ./docker-support.bsh publish
+WVFAIL ./docker-support.sh publish
 WVPASS [ ! -f $HOME/.docker/config.json ]
 
 #
@@ -125,13 +125,13 @@ WVPASS [ ! -f $HOME/.docker/config.json ]
 #
 export REGISTRY_USERNAME=user
 export REGISTRY_PASSWORD=password
-WVPASS ./docker-support.bsh publish 
+WVPASS ./docker-support.sh publish 
 WVPASS [ -f $HOME/.docker/config.json ]
 
-WVFAIL ./docker-support.bsh publish -s
+WVFAIL ./docker-support.sh publish -s
 export GIT_EMAIL=some_email@somewhere.com.foo
 export GIT_USERNAME=mygituser
-WVPASS ./docker-support.bsh publish -s
+WVPASS ./docker-support.sh publish -s
 
 # ^^ all env vars are setup now, so it will work in the next run
 
@@ -141,7 +141,7 @@ WVPASS ./docker-support.bsh publish -s
 
 rm $MYTMPDIR/TEST_docker-login
 rm $HOME/.docker/config.json
-WVPASS ./docker-support.bsh setup
+WVPASS ./docker-support.sh setup
 # make sure that login was not attempted
 WVPASS [ ! -f ./$MYTMPDIR/TEST_docker-login ]
 WVPASS [ ! -f $HOME/.docker/config.json ]
@@ -149,7 +149,7 @@ WVPASS [ ! -f $HOME/.docker/config.json ]
 #----------------------------------------------------
 # test - Was docker login called ? 
 #----------------------------------------------------
-WVPASS ./docker-support.bsh setup -l
+WVPASS ./docker-support.sh setup -l
 dockerArgs=( $(cat $MYTMPDIR/TEST_docker-login) )
 expected=(\
     "login" \
@@ -187,7 +187,7 @@ expected=(\
 WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 
 #----------------------------------------------------
-# test - docker-support.bsh publish will call 'docker push ${DOCKER_TAG_NAME}' - but only on a release branch
+# test - docker-support.sh publish will call 'docker push ${DOCKER_TAG_NAME}' - but only on a release branch
 #        so we will test that - we have the fake docker shell script going
 #----------------------------------------------------
 
@@ -196,7 +196,7 @@ WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 export ${CI_SYSTEM}_BRANCH=master
 export ${CI_SYSTEM}_PULL_REQUEST=false
 
-WVPASS ./docker-support.bsh publish -s
+WVPASS ./docker-support.sh publish -s
 pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
 expected=(\
     "push" \
@@ -205,7 +205,7 @@ expected=(\
 WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 
 #----------------------------------------------------
-# test - docker-support.bsh will call ci-publish-site,bsh .. so lets make sure that was called
+# test - docker-support.sh will call ci-publish-site,bsh .. so lets make sure that was called
 #----------------------------------------------------
 
 sitePublish=(  $( cat $MYTMPDIR/TEST_ci-publish-site ) )
@@ -216,7 +216,7 @@ WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
 # should not publish if not passed a -s
 #----------------------------------------------------
 rm $MYTMPDIR/TEST_ci-publish-site
-WVPASS ./docker-support.bsh publish 
+WVPASS ./docker-support.sh publish 
 WVPASS [ ! -f $MYTMPDIR/TEST_ci-publish-site ]
 
 #----------------------------------------------------

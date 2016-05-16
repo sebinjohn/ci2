@@ -7,7 +7,7 @@ ORIG_PWD=$PWD
 cd tests/test-bump-versions/scala
 
 # project/build.sbt
-WVPASS ../../../bump-scala-version-depend.bsh "omnia" "omnia-test" "2.0"
+WVPASS ../../../bump-scala-version-depend.sh "omnia" "omnia-test" "2.0"
 WVPASS grep '  depend.omnia("omnia-test", "2.0") ++' build.sbt
 
 cd $ORIG_PWD

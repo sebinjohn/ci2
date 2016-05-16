@@ -16,13 +16,13 @@ rm $TMPFILE
 export ${CI_SYSTEM}_BRANCH=master
 export ${CI_SYSTEM}_PULL_REQUEST=false
 WVFAIL test -e $TMPFILE
-WVPASS ./ci-nonrelease.bsh touch $TMPFILE
+WVPASS ./ci-nonrelease.sh touch $TMPFILE
 WVFAIL test -e $TMPFILE
 
 
 # Tests that the command will be run on non-release branches
 export ${CI_SYSTEM}_BRANCH=testbranch
 export ${CI_SYSTEM}_PULL_REQUEST=false
-WVPASS ./ci-nonrelease.bsh touch $TMPFILE
+WVPASS ./ci-nonrelease.sh touch $TMPFILE
 WVPASS test -e $TMPFILE
 rm $TMPFILE

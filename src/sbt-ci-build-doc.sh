@@ -14,11 +14,11 @@
 #   limitations under the License.
 #
 #   Usage:
-#   ./ci/sbt-ci-build-doc.bsh <documentation root URL> \
+#   ./ci/sbt-ci-build-doc.sh <documentation root URL> \
 #       <documentation source code URL base>
 #
 #   Example:
-#   ./ci/sbt-ci-build-doc.bsh https://commbank.github.io/ \
+#   ./ci/sbt-ci-build-doc.sh https://commbank.github.io/ \
 #       https://github.com/CommBank/maestro/ \
 #
 #   Important:

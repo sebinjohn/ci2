@@ -12,12 +12,12 @@ echo "1.0.0" > VERSION
 
 versionOrig=$(cat VERSION)
 # Check command works
-WVPASS ../setup-version.bsh
+WVPASS ../setup-version.sh
 # Check command modifies version
 WVPASSNE "$(cat VERSION)" "$versionOrig"
 # Check command fails properly
 rm VERSION
-WVFAIL ../setup-version.bsh
+WVFAIL ../setup-version.sh
 
 cd ..
 rm -rf $MYTMPDIR

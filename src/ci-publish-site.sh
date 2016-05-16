@@ -14,19 +14,19 @@
 #   limitations under the License.
 #
 #   Generic CI system documentation publication script. This is designed to be
-#   run after setup-version.bsh to publish a version number to releaseVersion
+#   run after setup-version.sh to publish a version number to releaseVersion
 #   in _config.yml. Any existing key with this name will be removed.
 #   <directory> is relative to the current working directory. The remote pushed
 #   to is always 'origin'.
 #
 #   Usage:
-#   ./ci/ci-publish-site.bsh <directory> [branch] [commit msg]
+#   ./ci/ci-publish-site.sh <directory> [branch] [commit msg]
 #
 #   Branch defaults to "gh-pages", commit msg defaults to 
 #   "CI Documentation Update"
 #
 #   Example:
-#   ./ci/ci-publish-site.bsh _site gh-pages "Automatic Update"
+#   ./ci/ci-publish-site.sh _site gh-pages "Automatic Update"
 #
 
 # Library import helper

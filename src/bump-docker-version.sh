@@ -12,28 +12,15 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
- 
-# ci-release.bsh <commands>
-#
-# If the release check in `lib-ci` returns 0 it will run the specified commands otherwise it will
-# not run the command and print a message saying it is not a release branch.
+
+# Bumps docker parent in a Dockerfile
+# Usage bump-docker-version.bsh docker_image version
 
 set -o nounset
+set -o errexit
 
-# Library import helper
-function import() {
-    IMPORT_PATH="${BASH_SOURCE%/*}"
-    if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
-    . $IMPORT_PATH/$1
-    [ $? != 0 ] && echo "$1 import error" 1>&2 && exit 1
-}
+[ -e Dockerfile ] && perl -i -pe "s|(^FROM $1:).*$|\1$2|g" Dockerfile
 
-import lib-ci
-
-CI_Env_Adapt $(CI_Env_Get)
-
-if [ $(Is_Release) = 0 ]; then
-    eval "$@"
-else
-    echo "Not running command. Not a release branch"
-fi
+for f in */Dockerfile; do
+  [ -e $f ] && perl -i -pe "s|(^FROM $1:).*$|\1$2|g" $f
+done

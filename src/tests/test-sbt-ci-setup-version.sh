@@ -12,7 +12,7 @@ cd $MYTMPDIR
 
 versionOrig=$(cat version.sbt)
 # Check command works
-WVPASS ../sbt-ci-setup-version.bsh
+WVPASS ../sbt-ci-setup-version.sh
 # Check command modifies version
 WVPASSNE "$(cat version.sbt)" "$versionOrig"
 # Check input string comes out broadly correctly.
@@ -21,7 +21,7 @@ WVPASS grep -oE "version in ThisBuild := \"1.0.0.*?\"" version.sbt
 WVPASSEQ   $(cat version.sbt | wc -l)  1
 # Check command fails properly
 rm version.sbt
-WVFAIL ../sbt-ci-setup-version.bsh
+WVFAIL ../sbt-ci-setup-version.sh
 
 cd ..
 rm -rf $MYTMPDIR

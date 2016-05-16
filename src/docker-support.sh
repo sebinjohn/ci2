@@ -252,7 +252,7 @@ if [[ ${MODE} == "publish" ]]; then
   log "docker-remove" docker rmi ${DOCKER_TAG_NAME}
   if [[ "$SITE_PUBLISH" == "true" ]]; then
     log "vars-check" check_vars_site_publish
-    log "site-publish" $IMPORT_PATH/ci-publish-site.bsh _site
+    log "site-publish" $IMPORT_PATH/ci-publish-site.sh _site
   fi
 fi
 

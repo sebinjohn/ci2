@@ -17,16 +17,16 @@ touch $TMPPATH/sbt
 chmod +x $TMPPATH/sbt
 
 # Check failure scenarios
-WVFAIL ./sbt-ci-deploy.bsh
-WVFAIL ./sbt-ci-deploy.bsh maven
-WVFAIL ./sbt-ci-deploy.bsh maven http://someurl
-WVFAIL ./sbt-ci-deploy.bsh unsupported http://someurl somerepo
+WVFAIL ./sbt-ci-deploy.sh
+WVFAIL ./sbt-ci-deploy.sh maven
+WVFAIL ./sbt-ci-deploy.sh maven http://someurl
+WVFAIL ./sbt-ci-deploy.sh unsupported http://someurl somerepo
 
 # Check we don't try to publish on non-master but do return success
 REAL_CI_BRANCH=$CI_BRANCH
 export CI_BRANCH=do-not-publish
-WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo
-WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo
+WVPASS ./sbt-ci-deploy.sh maven http://someurl somerepo
+WVPASS ./sbt-ci-deploy.sh ivy http://someurl somerepo
 
 # Setup a fake sbt binary to confirm release behavior
 cat << EOF > $TMPPATH/sbt
@@ -38,9 +38,9 @@ EOF
 
 # Check we invoke sbt successfully in both scenarios
 export CI_BRANCH=master
-WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo
-WVPASS ./sbt-ci-deploy.bsh maven http://someurl somerepo project1 project2 project3
-WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo
-WVPASS ./sbt-ci-deploy.bsh ivy http://someurl somerepo project1 project2 project3
+WVPASS ./sbt-ci-deploy.sh maven http://someurl somerepo
+WVPASS ./sbt-ci-deploy.sh maven http://someurl somerepo project1 project2 project3
+WVPASS ./sbt-ci-deploy.sh ivy http://someurl somerepo
+WVPASS ./sbt-ci-deploy.sh ivy http://someurl somerepo project1 project2 project3
 
 rm -rf $TMPPATH
