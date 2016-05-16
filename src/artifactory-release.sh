@@ -33,8 +33,8 @@ REPO_PATH=$1
 ARTIFACT=$2
 METADATA=$3
 
-
 ARTIFACTORY_URL=${ARTIFACTORY_URL:-"https://commbank.artifactoryonline.com/commbank"}
+ARTIFACTORY_API_KEY=${ARTIFACTORY_API_KEY?"environment variable is not set"}
 
 if [ -z "$REPO_PATH" ] || [ -z "$ARTIFACT" ]; then
     echo "Upload an artifact to an Artifactory repository."
@@ -43,13 +43,6 @@ if [ -z "$REPO_PATH" ] || [ -z "$ARTIFACT" ]; then
 else 
     echo "REPO_PATH=[${REPO_PATH}] - ARTIFACT=[${ARTIFACT}]"
 fi
-
-if [ -z "$ARTIFACTORY_API_KEY" ]; then
-    echo "Error: ARTIFACTORY_API_KEY environment variable is not set"
-    exit 1
-fi
-
-set -u
 
 ARTIFACTORY_AUTH="X-JFrog-Art-Api: $ARTIFACTORY_API_KEY"
 ARTIFACT_NAME=$(basename "$ARTIFACT")
