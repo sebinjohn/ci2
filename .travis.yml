@@ -16,7 +16,7 @@ script:
   - bashcov -- ./src/test/bash/run-tests.sh
   - ./src/main/bash/setup-version.sh
   - RELEASE_TGZ=/tmp/ci-$(cat VERSION).tar.gz
-  - tar cvfz ${RELEASE_TGZ} -X .exclude  --transform 's/^src\/main\/bash/ci/' src/main/bash
+  - tar cvfz ${RELEASE_TGZ} --transform 's/^src\/main\/bash/ci/' src/main/bash
   - tar xvzf ${RELEASE_TGZ} -C /tmp
   - ./src/main/bash/artifactory-release.sh public-binaries/ci ${RELEASE_TGZ}
 
