@@ -12,8 +12,17 @@ ci2 is a "set" of CI helper scripts. To assist with pushing, and publishing vers
 To depend on this REPO add the following to your ``.travis.yml`` / ``.drone.yml``
 
 ```
-curl -H 'X-JFrog-Art-Api: <API_KEY>' "https://commbank.artifactoryonline.com/commbank/binaries/ci-<VERSION>.tar.gz" | tar xfz
+curl https://commbank.artifactoryonline.com/commbank/binaries/ci/ci-<VERSION>.tar.gz | tar xz
 ```
+
+Latest releases can be found here [ci2 releases](https://commbank.artifactoryonline.com/commbank/binaries/ci/)
+
+## Disclaimer
+
+This module is intended to be "pulled" in using curl or wget, as an external dependency. 
+This is the only supported approach.
+
+If you don't use a versioned approach for pulling in these scripts, there is no guarantee of your build succeeding, as ci2 may be updated at any time.
 
 ## Scripts 
 
@@ -57,11 +66,12 @@ these scripts.
 
 * In build configurations the building and unit testing of the code should not require any CI 
   scripts and be expressed in a similar way that a user would run locally.
-* Our standard versioning approach is semantic version plus the commish plus the build time stamp.
+* Our standard versioning approach is semantic version plus the build time stamp plus the commish.
 * We predominantly utilise our CI scripts to customise the deployment and publication process. This 
   is custom to our environments and there is no expectation that the user will do a publish manually.
 * We use CI scripts to set up custom version for builds in a way that is transparent to the build
   tooling. Users provide the semantic version in a way that is suitable for their particular tooling
-  and the CI scripts append the commish and time stamp at the beginning of the build.
+  and the CI scripts append the time stamp and commish at the beginning of the build.
+  e.g. ``(file) VERSION: 2.0.3`` --> ``ci-2.0.3-20160517230553-92fd78d``
 
 
