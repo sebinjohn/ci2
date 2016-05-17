@@ -2,11 +2,10 @@
 # Test the ci-publish-site script.
 
 # Test framework
-. ./wvtest.sh
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
-. ./lib-ci
-
-SCRIPTS_DIR=${PWD}
+SCRIPTS_DIR=${MAIN_PATH}
 
 # This is our fake remote repo to send documentation to
 TMPREMOTE=$( Mktemp_Portable dir )

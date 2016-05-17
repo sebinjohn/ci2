@@ -3,9 +3,8 @@
 # (included in this repository) and build documentation against it.
 
 # Test framework
-. ./wvtest.sh
-
-. ./lib-ci
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
 # Base dir for sbt
 TMPBASE=$( Mktemp_Portable dir )
@@ -14,15 +13,8 @@ TMPBASE=$( Mktemp_Portable dir )
 TMPREMOTE=$( Mktemp_Portable dir )
 git init --bare $TMPREMOTE || exit 1
 
-# Test fixtures mean we need to know where we're running
-SCRIPT_DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$SCRIPT_DIR" ]]; then SCRIPT_DIR="$PWD"; fi
-
-# Testing the test fixtures
-ORIG_PWD=$(pwd)
-
 # cp our sample project over to the TMPBASE
-cp -av $SCRIPT_DIR/test-sbt-ci-build-doc ${TMPBASE}
+cp -av $TEST_PATH/test-sbt-ci-build-doc ${TMPBASE}
 cd $TMPBASE/test-sbt-ci-build-doc
 
 ORIG_CI_BRANCH=$CI_BRANCH
@@ -39,15 +31,13 @@ git symbolic-ref HEAD refs/heads/master || exit 1
 
 # Test that we fail when there is no git remote.
 export FORCE_PUBLISH=yes
-WVFAIL ${ORIG_PWD}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
+WVFAIL ${MAIN_PATH}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
 
 # Make a git remote to allow the script to find one
 git remote add origin $(readlink_f $TMPREMOTE) || exit 1
 
 # This should now run correctly.
-WVPASS ${ORIG_PWD}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
-
-cd $ORIG_PWD
+WVPASS ${MAIN_PATH}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
 
 # Remove temporary directories
 rm -rf .gitkeep .git $TMPBASE $TMPREMOTE

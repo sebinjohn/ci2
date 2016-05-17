@@ -2,13 +2,12 @@
 # Test the dockermake script.
 
 # Test framework
-. ./wvtest.sh
-
-. ./lib-ci
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
 
 ORIG_PATH=$PATH
-SCRIPT_DIR=${PWD}
+SCRIPT_DIR=${MAIN_PATH}
 
 MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
 TMPPATH=$( Mktemp_Portable dir ${PWD} )

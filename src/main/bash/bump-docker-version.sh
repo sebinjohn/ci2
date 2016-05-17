@@ -14,13 +14,13 @@
 #   limitations under the License.
 
 # Bumps docker parent in a Dockerfile
-# Usage bump-docker-version.bsh docker_image version
+# Usage bump-docker-version.sh docker_image version
 
 set -o nounset
 set -o errexit
 
-[ -e Dockerfile ] && perl -i -pe "s|(^FROM $1:).*$|\1$2|g" Dockerfile
+[ -e Dockerfile ] && sed -i -r "s|(^FROM $1:).*$|\1$2|g" Dockerfile
 
 for f in */Dockerfile; do
-  [ -e $f ] && perl -i -pe "s|(^FROM $1:).*$|\1$2|g" $f
+  [ -e $f ] && sed -i -r "s|(^FROM $1:).*$|\1$2|g" $f
 done
