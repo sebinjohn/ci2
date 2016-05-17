@@ -2,9 +2,8 @@
 # Test the lib-version library
 
 # Test framework
-. ./wvtest.sh
-
-. ./lib-ci
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
 MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
 
@@ -107,27 +106,27 @@ WVPASS [ $(Hostname_From_Url "http://test.example.com/some/args?hello") = "test.
 WVPASS [ $(Hostname_From_Url "https://test2.ports.com:443/some/args?hello") = "test2.ports.com:443" ]
 
 # Test atexit
-cat << EOF > .test_lib_ci_atexit.bsh
+cat << EOF > .test_lib_ci_atexit.sh
 #!/bin/bash -x
-. ../lib-ci
+. ${MAIN_PATH}/lib-ci
 trap "atexit_commands; exit 0" INT TERM EXIT
 echo "In test script"
 atexit echo "Produced by atexit hook"
 atexit touch .made_by_atexit
 EOF
-chmod +x .test_lib_ci_atexit.bsh
-WVPASS ./.test_lib_ci_atexit.bsh
+chmod +x .test_lib_ci_atexit.sh
+WVPASS ./.test_lib_ci_atexit.sh
 WVPASS [ -e .made_by_atexit ]
 rm .made_by_atexit
-rm .test_lib_ci_atexit.bsh
+rm .test_lib_ci_atexit.sh
 
 # Check the atexit commands don't propagate
-cat << EOF > .test_lib_ci_atexit_fail.bsh
+cat << EOF > .test_lib_ci_atexit_fail.sh
 #!/bin/bash -x
-. ../lib-ci
+. ${MAIN_PATH}/lib-ci
 trap "atexit_commands; exit 0" INT TERM EXIT
 EOF
-chmod +x .test_lib_ci_atexit_fail.bsh
-WVPASS ./.test_lib_ci_atexit_fail.bsh
+chmod +x .test_lib_ci_atexit_fail.sh
+WVPASS ./.test_lib_ci_atexit_fail.sh
 WVPASS [ ! -e .made_by_atexit ]
-rm .test_lib_ci_atexit_fail.bsh
+rm .test_lib_ci_atexit_fail.sh

@@ -1,11 +1,17 @@
 #!/bin/bash
 
-. ./lib-ci
+export TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [[ ! -d "$TEST_PATH" ]]; then TEST_PATH="$PWD"; fi
+export MAIN_PATH=${TEST_PATH}/../../main/bash
+
+. ${MAIN_PATH}/lib-ci
 
 function init() {
   # Always show the CI env
   echo ":: [$0] Dumping CI environment..."
   CI_Env_Dump
+  echo ":: [$0] TEST_PATH=${TEST_PATH}"
+  echo ":: [$0] MAIN_PATH=${MAIN_PATH}"
 }
 
 function cleanup() {
@@ -18,8 +24,9 @@ function cleanup() {
 }
 
 function run_tests() {
+  cd ${TEST_PATH}
   # Run the tests
-  for i in $(find tests -mindepth 1 -name 'test-*' -type f -print | sort); do
+  for i in $(find . -mindepth 1 -name 'test-*' -type f -print | sort); do
       echo ":: [$0] $i"
       bash $i
       if [ $? != 0 ]; then
@@ -28,7 +35,7 @@ function run_tests() {
           exit 1
       fi
   done
-  echo ":: [$0] All tests complete."
+  echo ":: [$0] All tests completed successfully."
 }
 
 #

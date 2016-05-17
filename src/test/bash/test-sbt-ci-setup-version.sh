@@ -1,9 +1,8 @@
 #!/bin/bash -u
 
 # Test framework
-. ./wvtest.sh
-
-. ./lib-ci
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
 MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
 echo -e "version in ThisBuild := \"1.0.0\"\nuniqueVersionSettings" > $MYTMPDIR/version.sbt
@@ -12,7 +11,7 @@ cd $MYTMPDIR
 
 versionOrig=$(cat version.sbt)
 # Check command works
-WVPASS ../sbt-ci-setup-version.bsh
+WVPASS ${MAIN_PATH}/sbt-ci-setup-version.sh
 # Check command modifies version
 WVPASSNE "$(cat version.sbt)" "$versionOrig"
 # Check input string comes out broadly correctly.
@@ -21,7 +20,6 @@ WVPASS grep -oE "version in ThisBuild := \"1.0.0.*?\"" version.sbt
 WVPASSEQ   $(cat version.sbt | wc -l)  1
 # Check command fails properly
 rm version.sbt
-WVFAIL ../sbt-ci-setup-version.bsh
+WVFAIL ${MAIN_PATH}/sbt-ci-setup-version.sh
 
-cd ..
 rm -rf $MYTMPDIR

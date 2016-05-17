@@ -2,13 +2,12 @@
 # Test the dockermake script.
 
 # Test framework
-. ./wvtest.sh
-
-. ./lib-ci
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
 
 ORIG_PATH=$PATH
-SCRIPT_DIR=${PWD}
+SCRIPT_DIR=${MAIN_PATH}
 
 MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
 TMPPATH=$( Mktemp_Portable dir ${PWD} )
@@ -24,8 +23,8 @@ WORKDIR=$( Mktemp_Portable dir ${PWD} )
 cd $WORKDIR
 
 # Check the script fails properly
-WVFAIL ${SCRIPT_DIR}/dockermake.bsh
-WVFAIL ${SCRIPT_DIR}/dockermake.bsh unsupported
+WVFAIL ${SCRIPT_DIR}/dockermake.sh
+WVFAIL ${SCRIPT_DIR}/dockermake.sh unsupported
 
 # Test docker build part
 mkdir tmpDOCKERIMAGE
@@ -50,7 +49,7 @@ EOF
 
 # Do a build then check the file fake-docker writes to see what the input args
 # were.
-WVPASS ${SCRIPT_DIR}/dockermake.bsh build --build-arg=somearg1=somevalue1 \
+WVPASS ${SCRIPT_DIR}/dockermake.sh build --build-arg=somearg1=somevalue1 \
         --build-arg somearg2=somevalue2
 
 # Image 1
@@ -115,7 +114,7 @@ exit 0
 EOF
 chmod +x $TMPPATHORDER/docker
 
-WVPASS ${SCRIPT_DIR}/dockermake.bsh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
+WVPASS ${SCRIPT_DIR}/dockermake.sh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
 
 cd ..
 

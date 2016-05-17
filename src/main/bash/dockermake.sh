@@ -17,7 +17,7 @@
 # `master`
 # 
 # Example Usage:
-# ./ci/dockermake.bsh build myimage1 myimage2 --build-arg=someval
+# ./ci/dockermake.sh build myimage1 myimage2 --build-arg=someval
 
 
 set -u

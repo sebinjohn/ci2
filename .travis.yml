@@ -13,12 +13,12 @@ before_script:
   - gem install coveralls
 
 script:
-  - ( cd src && bashcov -- ./test.bsh )
-  - ./src/setup-version.bsh
+  - bashcov -- ./src/test/bash/run-tests.sh
+  - ./src/main/bash/setup-version.sh
   - RELEASE_TGZ=/tmp/ci-$(cat VERSION).tar.gz
-  - tar cvfz ${RELEASE_TGZ} -X .exclude  --transform 's/^src/ci/' src 
+  - tar cvfz ${RELEASE_TGZ} --transform 's/^src\/main\/bash/ci/' src/main/bash
   - tar xvzf ${RELEASE_TGZ} -C /tmp
-  - ./src/artifactory-release.sh public-binaries/ci ${RELEASE_TGZ}
+  - ./src/main/bash/artifactory-release.sh public-binaries/ci ${RELEASE_TGZ}
 
 env:
   global:

@@ -2,11 +2,10 @@
 # Test the ci-publish-site script.
 
 # Test framework
-. ./wvtest.sh
+. ${TEST_PATH}/wvtest.sh
+. ${MAIN_PATH}/lib-ci
 
-. ./lib-ci
-
-SCRIPTS_DIR=${PWD}
+SCRIPTS_DIR=${MAIN_PATH}
 
 # This is our fake remote repo to send documentation to
 TMPREMOTE=$( Mktemp_Portable dir )
@@ -37,23 +36,23 @@ cd $TMPBASE || exit 1
 atexit cd $(pwd)
 
 # Check we fail when no VERSION
-WVFAIL ${SCRIPTS_DIR}/ci-publish-site.bsh "$TMPBASE/site" "gh-pages" "Commit Msg"
+WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 
 # Check fail when empty VERSION
 touch VERSION
-WVFAIL ${SCRIPTS_DIR}/ci-publish-site.bsh "$TMPBASE/site" "gh-pages" "Commit Msg"
+WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 
 # Should pass when a version file exists and the GIT_USERNAME and GIT_EMAIL
 export GIT_EMAIL="zbi+test@cba.com.au"
 export GIT_USERNAME="WVTEST"
 echo "1.0.0" >> VERSION
-WVPASS ${SCRIPTS_DIR}/ci-publish-site.bsh "$TMPBASE/site" "gh-pages" "Commit Msg"
+WVPASS ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 
 # Check the we end up with something sensible in the base directory
 WVPASS [ -e "$TMPBASE/site/_config.yml" ]
 WVPASS grep 'releaseVersion' $TMPBASE/site/_config.yml
 
 # Do a bunch of WVFAIL tests for command line parsing 
-WVFAIL ${SCRIPTS_DIR}/ci-publish-site.bsh nonexistent
-WVFAIL ${SCRIPTS_DIR}/ci-publish-site.bsh
+WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh nonexistent
+WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh
 

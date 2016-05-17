@@ -13,14 +13,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-# Bumps docker parent in a Dockerfile
-# Usage bump-docker-version.bsh docker_image version
+# Bumps version number for depend statements i.e. `depend.omnia("omnia-test", "0.4.3-20160404081116-ec9a1e5")`
+# Usage bump-scala-version-depend.sh group artifact version
 
 set -o nounset
 set -o errexit
 
-[ -e Dockerfile ] && sed -i -r "s|(^FROM $1:).*$|\1$2|g" Dockerfile
+for f in *.sbt; do
+  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
+done
 
-for f in */Dockerfile; do
-  [ -e $f ] && sed -i -r "s|(^FROM $1:).*$|\1$2|g" $f
+for f in project/*.scala; do
+  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
+done
+
+for f in project/*.sbt; do
+  [ -e $f ] && sed -i -r "s/(.*depend\.$1\(\"$2\", +\")[^\"]+/\1$3/g" $f
 done

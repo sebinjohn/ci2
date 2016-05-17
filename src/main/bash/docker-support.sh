@@ -24,6 +24,7 @@ set -o pipefail
 IFS=$'\n\t'
 IMPORT_PATH="${BASH_SOURCE%/*}"
 if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
+CI_DIR=${CI_DIR:-${IMPORT_PATH}}
 
 # Library import helper
 function import() {
@@ -252,7 +253,7 @@ if [[ ${MODE} == "publish" ]]; then
   log "docker-remove" docker rmi ${DOCKER_TAG_NAME}
   if [[ "$SITE_PUBLISH" == "true" ]]; then
     log "vars-check" check_vars_site_publish
-    log "site-publish" $IMPORT_PATH/ci-publish-site.bsh _site
+    log "site-publish" $CI_DIR/ci-publish-site.sh _site
   fi
 fi
 
