@@ -50,8 +50,8 @@ function usage() {
   echo 1>&2
   echo "publish -e <git-email> -n <git-username> [ -i <user/docker-image> | -d <full-docker-tag> ] [ -s ]"
   echo "  -s                    - publish the site also"
-  echo "  -e <GIT_EMAIL>        - used for _site doc publish-ing - defaults to ${GIT_EMAIL}" 1>&2
-  echo "  -n <GIT_USERNAME>     - used for _site doc publish-ing - defaults to ${GIT_USERNAME}" 1>&2
+  echo "  -e <CI_EMAIL>        - used for _site doc publish-ing - defaults to ${CI_EMAIL}" 1>&2
+  echo "  -n <CI_USERNAME>     - used for _site doc publish-ing - defaults to ${CI_USERNAME}" 1>&2
   echo
   echo "  -i <DOCKER_IMAGE>     - Docker tag .. user/tag" 1>&2
   echo " OR" 1>&2
@@ -91,10 +91,10 @@ function get_cmd_opts() {
         REGISTRY_PASSWORD=${OPTARG}
         ;;
       n)
-        GIT_USERNAME=${OPTARG}
+        CI_USERNAME=${OPTARG}
         ;;
       e)
-        GIT_EMAIL=${OPTARG}
+        CI_EMAIL=${OPTARG}
         ;;
       r)
         REGISTRY_HOST=${OPTARG}
@@ -135,6 +135,7 @@ function check_vars_base() {
 function check_vars_auth() {
   REGISTRY_USERNAME=${REGISTRY_USERNAME?"is not defined"}
   REGISTRY_PASSWORD=${REGISTRY_PASSWORD?"is not defined"}
+  CI_EMAIL=${CI_EMAIL?"is not defined"}
 }
 
 function check_vars_docker_login() {
@@ -149,8 +150,8 @@ function check_vars_docker_publish() {
 }
 
 function check_vars_site_publish() {
-  GIT_EMAIL=${GIT_EMAIL?"is not defined"}
-  GIT_USERNAME=${GIT_USERNAME?"is not defined"}
+  CI_EMAIL=${CI_EMAIL?"is not defined"}
+  CI_USERNAME=${CI_USERNAME?"is not defined"}
 }
 
 function set_vars() {
@@ -231,7 +232,7 @@ if [[ ${MODE} == "setup" ]]; then
   log "vars-check" check_vars_base
   if [[ "$DOCKER_LOGIN" == "true" ]]; then
     log "vars-check" check_vars_docker_login
-    log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_HOST}
+    log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} -e ${CI_EMAIL} ${REGISTRY_HOST}
   fi
   log "set_version"
   Version_Write_New
@@ -247,7 +248,7 @@ if [[ ${MODE} == "publish" ]]; then
   if grep --quiet ${REGISTRY_HOST} ${HOME}/.docker/config.json; then
     log "docker-login -- already logged in ${REGISTRY_USERNAME}@${REGISTRY_HOST}" true
   else
-    log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY_HOST}
+    log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} -e ${CI_EMAIL} ${REGISTRY_HOST}
   fi
   log "docker-publish -- docker push ${DOCKER_TAG_NAME}" only_on_release docker push ${DOCKER_TAG_NAME}
   log "docker-remove" docker rmi ${DOCKER_TAG_NAME}
