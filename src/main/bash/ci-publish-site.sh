@@ -41,8 +41,7 @@ import lib-ci
 
 CI_Env_Adapt $(CI_Env_Get)
 
-${1?"directory must be supplied"}
-dir=$(readlink_f $1)
+dir=$(readlink_f ${1?"directory must be supplied"} )
 echo "[[[$dir]]]"
 branch="$2"
 commit_msg="$3"
@@ -76,16 +75,16 @@ if [ -z "$version" ]; then
     exit 1
 fi
 
-GIT_EMAIL=${GIT_EMAIL?"is not defined"}
-GIT_USERNAME=${GIT_USERNAME?"is not defined"}
+CI_EMAIL=${CI_EMAIL?"is not defined"}
+CI_USERNAME=${CI_USERNAME?"is not defined"}
 
 echo "" >> $dir/_config.yml
 sed -i -e '/^releaseVersion: .*/d' $dir/_config.yml || exit 1
 echo "releaseVersion: $version" >> $dir/_config.yml
 
 if [ $CI_BRANCH = "master" ]; then
-    git config user.email "${GIT_EMAIL}"
-    git config user.name "${GIT_USERNAME}"
+    git config user.email "${CI_EMAIL}"
+    git config user.name "${CI_USERNAME}"
     Publish_Subdirectory_To_Branch $branch "$dir" "$commit_msg"
 else
     echoerr "Not publishing because branch is not master."

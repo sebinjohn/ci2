@@ -34,6 +34,7 @@ chmod +x ci-publish-site.sh
 # Setup a fake docker path
 touch $MYTMPPATH/docker
 chmod +x $MYTMPPATH/docker
+export HOME=${MYTMPDIR}
 
 #
 #
@@ -94,6 +95,7 @@ WVFAIL ${MAIN_PATH}/docker-support.sh setup -l
 export REGISTRY_USERNAME=user
 WVFAIL ${MAIN_PATH}/docker-support.sh setup -l
 export REGISTRY_PASSWORD=user
+export CI_EMAIL=some_email@somewhere.com.foo
 WVPASS ${MAIN_PATH}/docker-support.sh setup -l
 
 # ---- publish tests
@@ -125,8 +127,7 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish
 WVPASS [ -f $HOME/.docker/config.json ]
 
 WVFAIL ${MAIN_PATH}/docker-support.sh publish -s
-export GIT_EMAIL=some_email@somewhere.com.foo
-export GIT_USERNAME=mygituser
+export CI_USERNAME=mygituser
 WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 
 # ^^ all env vars are setup now, so it will work in the next run
@@ -153,6 +154,8 @@ expected=(\
     "${REGISTRY_USERNAME}" \
     "-p" \
     "${REGISTRY_PASSWORD}" \
+    "-e" \
+    "${CI_EMAIL}" \
     "${REGISTRY_HOST}" \
 )
 WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"

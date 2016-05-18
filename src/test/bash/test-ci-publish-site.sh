@@ -42,9 +42,9 @@ WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 touch VERSION
 WVFAIL ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 
-# Should pass when a version file exists and the GIT_USERNAME and GIT_EMAIL
-export GIT_EMAIL="zbi+test@cba.com.au"
-export GIT_USERNAME="WVTEST"
+# Should pass when a version file exists and the CI_USERNAME and CI_EMAIL
+export CI_EMAIL="zbi+test@cba.com.au"
+export CI_USERNAME="WVTEST"
 echo "1.0.0" >> VERSION
 WVPASS ${SCRIPTS_DIR}/ci-publish-site.sh "$TMPBASE/site" "gh-pages" "Commit Msg"
 
