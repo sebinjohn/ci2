@@ -132,6 +132,10 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 
 # ^^ all env vars are setup now, so it will work in the next run
 
+# ensure that no _site/config.yml was created at this stage 
+# There is no _site dir at this juncture
+WVPASS [ ! -f $MYTMPDIR/_site/config.yml ]
+
 #----------------------------------------------------
 # test - perform the setup but no login should have occurred
 #----------------------------------------------------
@@ -140,7 +144,7 @@ rm $MYTMPDIR/TEST_docker-login
 rm $HOME/.docker/config.json
 WVPASS ${MAIN_PATH}/docker-support.sh setup
 # make sure that login was not attempted
-WVPASS [ ! -f ./$MYTMPDIR/TEST_docker-login ]
+WVPASS [ ! -f $MYTMPDIR/TEST_docker-login ]
 WVPASS [ ! -f $HOME/.docker/config.json ]
 
 #----------------------------------------------------
@@ -194,6 +198,7 @@ WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 . ./ci-env-vars.sh
 export ${CI_SYSTEM}_BRANCH=master
 export ${CI_SYSTEM}_PULL_REQUEST=false
+mkdir _site
 
 WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
@@ -210,6 +215,16 @@ WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 sitePublish=(  $( cat $MYTMPDIR/TEST_ci-publish-site ) )
 expected=( "_site" )
 WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
+
+# check that docker-support wrote out the various vars
+siteConfigVars=( $(cat _site/_config.yml) )
+expected=(\
+    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_IMAGE}:${versionNew}" \
+    "dockerImage: ${DOCKER_IMAGE}" \
+    "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_IMAGE}" \
+    "registryHost: ${REGISTRY_HOST}"
+)
+WVPASSEQ "$(echo ${siteConfigVars[@]})" "$(echo ${expected[@]})"
 
 #----------------------------------------------------
 # should not publish if not passed a -s

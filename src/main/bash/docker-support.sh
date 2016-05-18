@@ -238,7 +238,6 @@ if [[ ${MODE} == "setup" ]]; then
   Version_Write_New
   log "set_vars"
   set_vars
-  log "show-vars" dump_vars
   log "create_ci_vars" create_ci_vars
 fi
 
@@ -253,8 +252,19 @@ if [[ ${MODE} == "publish" ]]; then
   log "docker-publish -- docker push ${DOCKER_TAG_NAME}" only_on_release docker push ${DOCKER_TAG_NAME}
   log "docker-remove" docker rmi ${DOCKER_TAG_NAME}
   if [[ "$SITE_PUBLISH" == "true" ]]; then
-    log "vars-check" check_vars_site_publish
-    log "site-publish" $CI_DIR/ci-publish-site.sh _site
+    log "vars-check-publish" check_vars_site_publish
+    if [ -d _site ]; then
+      log "add-site-config" 
+
+      echo "dockerTagName: ${DOCKER_TAG_NAME}" >> _site/_config.yml
+      echo "dockerImage: ${DOCKER_IMAGE}" >> _site/_config.yml
+      echo "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_IMAGE}" >> _site/_config.yml
+      echo "registryHost: ${REGISTRY_HOST}" >> _site/_config.yml
+
+      log "_site/config.yml" cat _site/_config.yml
+
+      log "site-publish" $CI_DIR/ci-publish-site.sh _site
+    fi
   fi
 fi
 
