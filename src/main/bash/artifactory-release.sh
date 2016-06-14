@@ -31,6 +31,7 @@ CI_Env_Adapt $(CI_Env_Get)
 
 if [ $(Is_Release) != 0 ]; then
     echo "$0: Not a release branch; Not publishing. (See lib-ci:Is_Release)"
+    exit 0
 fi
 
 REPO_PATH=$1
