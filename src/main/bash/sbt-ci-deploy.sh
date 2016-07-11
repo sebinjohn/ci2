@@ -82,10 +82,12 @@ user=$ARTIFACTORY_USERNAME
 password=$ARTIFACTORY_PASSWORD
 EOF
 
+    repositoryURL=$artifactoryURL/$targetRepository
+
     echo "Publishing to repository $targetRepository"
-    echo "Full publishing URL: $artifactoryURL/$targetRepository"
+    echo "Full publishing URL: $repositoryURL"
     
-    publishTo="set publishTo in ThisBuild := Some(\"$targetRepository\" at \"$artifactoryURL\")"
+    publishTo="set publishTo in ThisBuild := Some(\"$targetRepository\" at \"$repositoryURL\")"
     case "$publishStyle" in
         maven)
             publishStyleLine="set publishMavenStyle in ThisBuild := true"
