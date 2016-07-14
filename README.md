@@ -41,6 +41,7 @@ If you don't use a versioned approach for pulling in these scripts, there is no 
 * ``gh-commit-comment.sh`` - Uses the GitHub API to create a comment against a specific git commit-sha
 * ``sbt-ci-build-doc.sh`` - Uses sbt to build documentation for the project and commit to ``gh-pages`` branch
 * ``sbt-ci-deploy.sh`` - Uses sbt to deploy your artifact
+* ``sbt-ci-setup.sh`` - Creates the SBT credentials file
 * ``sbt-ci-setup-version.sh`` - Sets up the correct "CI" version for the SBT project
 * ``setup-version.sh`` - Replaces the VERSION file with a common ``ver-date-commish``
 
@@ -88,8 +89,15 @@ these scripts.
 5. Add the encrypted artifactory username and password by running these commands in the same directory as `.travis.yml`:
    - `travis encrypt ARTIFACTORY_USERNAME=... --add env.global`
    - `travis encrypt ARTIFACTORY_PASSWORD=... --add env.global`
-6. [Optional to publish documentation] **For public repos only** Create a branch called `gh-pages` for the project and push it to github. Then add the private key for omnia-bamboo as an encrypted file.
+6. [Optional to publish SBT project]:
+   1. `install` steps:
+      1. `ci/sbt-ci-setup.sh` to create the artifactory credentials file
+      1. `ci/sbt-ci-setup-version.sh` to generate version with date + commish
+   1. `script` steps:
+      1. `sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package'` to test and package artifacts
+      1. `ci/sbt-ci-deploy.sh <type> <url> <repo>` to publish artifacts
+7. [Optional to publish documentation] **For public repos only** Create a branch called `gh-pages` for the project and push it to github. Then add the private key for omnia-bamboo as an encrypted file.
    1. Get the private key (ask on Gitter and someone will help)
    1. Create a folder in the repo `.ci`
    1. `travis encrypt-file <path-private-key> .ci/deploy-key.enc -w .ci/deploy-key.pem --add`
-   1. For sbt builds add `ci/sbt-build-doc.sh && ci/ci-push-branch.sh gh-pages` to the build commands.
+   1. For sbt builds add `ci/sbt-build-doc.sh <url-root> <url-template> && ci/ci-push-branch.sh gh-pages` to the build commands.
