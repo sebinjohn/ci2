@@ -7,7 +7,6 @@
 . ${MAIN_PATH}/lib-ci
 
 ORIG_PATH=$PATH
-ORIG_CI_BRANCH=$CI_BRANCH
 TMPDIR=$( Mktemp_Portable dir )
 TMPPATH=$( Mktemp_Portable dir )
 
@@ -44,14 +43,7 @@ mv .ci/deploy-key.pem .ci/deploy-key2.pem
 WVFAIL ${MAIN_PATH}/ci-push-branch.sh somebranch
 mv .ci/deploy-key2.pem .ci/deploy-key.pem
 
-# Check we don't try to publish on non-master but do return success
-export CI_BRANCH=other
-mv $TMPPATH/git $TMPPATH/git2
-WVPASS ${MAIN_PATH}/ci-push-branch.sh somebranch
-mv $TMPPATH/git2 $TMPPATH/git
-
 # Happy path
-export CI_BRANCH=master
 WVPASS ${MAIN_PATH}/ci-push-branch.sh somebranch
 
 #----------------------------------------------------
@@ -61,4 +53,3 @@ WVPASS ${MAIN_PATH}/ci-push-branch.sh somebranch
 cd ..
 rm -rf $TMPDIR $TMPPATH
 export PATH=$ORIG_PATH
-export CI_BRANCH=$ORIG_CI_BRANCH
