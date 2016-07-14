@@ -7,6 +7,8 @@ export MAIN_PATH=${TEST_PATH}/../../main/bash
 . ${MAIN_PATH}/lib-ci
 
 function init() {
+  export CI_TEST_RUNNING=1
+
   # Always show the CI env
   echo ":: [$0] Dumping CI environment..."
   CI_Env_Dump
@@ -21,6 +23,8 @@ function cleanup() {
   #
   echo ":: [$0] cleanup temp dirs"
   find . -name '_tmp-*' | xargs -L1 -Ixx sh -c 'echo "rm -rf xx"  && rm -rf xx'
+
+  unset CI_TEST_RUNNING
 }
 
 function run_tests() {

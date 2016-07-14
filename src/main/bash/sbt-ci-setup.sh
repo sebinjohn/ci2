@@ -15,7 +15,10 @@
 #
 #   Creates the credential file to allow access to artifactory online.
 
-set -u
+# Artifactory credentials aren't required when testing
+if [ -z "$CI_TEST_RUNNING" ]; then
+    set -u
+fi
 
 mkdir -p ci
 
