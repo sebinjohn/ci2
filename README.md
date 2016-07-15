@@ -93,11 +93,13 @@ these scripts.
    1. `install` steps:
       1. `ci/sbt-ci-setup.sh` to create the artifactory credentials file
       1. `ci/sbt-ci-setup-version.sh` to generate version with date + commish
+      1. `cp /etc/sbt/sbtopts .sbtopts; echo "-Dsbt.global.base=$TRAVIS_BUILD_DIR/ci" >> .sbtopts` to make the artifactory credentials globally available to SBT
    1. `script` steps:
-      1. `sbt -Dsbt.global.base=$TRAVIS_BUILD_DIR/ci '; test; package'` to test and package artifacts
+      1. `sbt test package`
       1. `ci/sbt-ci-deploy.sh <type> <url> <repo>` to publish artifacts
 7. [Optional to publish documentation] **For public repos only** Create a branch called `gh-pages` for the project and push it to github. Then add the private key for omnia-bamboo as an encrypted file.
-   1. Get the private key (ask on Gitter and someone will help)
+   1. Ensure the team 'CI Machine Users' has write permissions on your repo
+   1. Get the private key (ask on Gitter)
    1. Create a folder in the repo `.ci`
    1. `travis encrypt-file <path-private-key> .ci/deploy-key.enc -w .ci/deploy-key.pem --add`
    1. For sbt builds add `ci/sbt-build-doc.sh <url-root> <url-template> && ci/ci-push-branch.sh gh-pages` to the build commands.
