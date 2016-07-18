@@ -281,6 +281,11 @@ Publish_Subdirectory_To_Branch() {
     
     export GIT_DIR=$(pwd)/.git
     export GIT_WORK_TREE=$directory
+
+    # Travis won't fetch refs for other branches, so do it explicitly
+    if [ "$(CI_Env_Get)" = "TRAVIS" ]; then
+        git fetch $remote $git_branch:$git_branch
+    fi
     
     git symbolic-ref HEAD refs/heads/$git_branch
     
