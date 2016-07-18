@@ -98,6 +98,7 @@ these scripts.
       1. `sbt test package`
       1. `ci/sbt-ci-deploy.sh <type> <url> <repo>` to publish artifacts
 7. [Optional to publish documentation] **For public repos only** Create a branch called `gh-pages` for the project and push it to github. Then add the private key for omnia-bamboo as an encrypted file.
+   1. Ensure your project is using uniform 1.11 or greater
    1. Ensure the team 'CI Machine Users' has write permissions on your repo
    1. Get the private key (ask on Gitter)
    1. Create a folder in the repo `.ci`
