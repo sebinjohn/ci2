@@ -86,7 +86,7 @@ EOF
 
     echo "Publishing to repository $targetRepository"
     echo "Full publishing URL: $repositoryURL"
-    
+
     publishTo="set publishTo in ThisBuild := Some(\"$targetRepository\" at \"$repositoryURL\")"
     case "$publishStyle" in
         maven)
@@ -99,23 +99,22 @@ EOF
             echoerr "BUG: Publish style should be validated before now."
             exit 1
     esac
-    
+
     credentialsArg="set credentials += Credentials(new java.io.File(\"sbt.credentials\"))"
-    
+
     if [ $# -eq 0 ]; then
         $SBT "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
     else
         for project in $@; do
             echo "Publishing $project ..."
             $SBT ";project $project" "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
-        done        
+        done
     fi
 }
 
 if [ "$(Is_Release)" = "0" ]; then
-    do_release
-else 
+    do_release "$@"
+else
     echoerr "This is not a release a branch so it will not be deployed".
     echoerr "To make this a release branch, add it to the RELEASE_BRANCHES environment variable."
 fi
-
