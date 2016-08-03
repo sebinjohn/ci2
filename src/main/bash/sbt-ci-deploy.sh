@@ -100,7 +100,7 @@ EOF
             exit 1
     esac
 
-    credentialsArg="set credentials += Credentials(new java.io.File(\"sbt.credentials\"))"
+    credentialsArg="set credentials in ThisBuild += Credentials(new java.io.File(\"sbt.credentials\"))"
 
     if [ $# -eq 0 ]; then
         $SBT "$credentialsArg" "$publishTo" "$publishStyleLine" "; + publish"
