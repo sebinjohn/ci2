@@ -39,8 +39,8 @@ set -o errexit
 CI_Env_Adapt $(CI_Env_Get)
 
 if [[ -f $CI_VERSION_FILE ]]; then
-   echoerr ".VERSION has already been set"
-   echoerr ".VERSION should only be set once"
+   echoerr "$CI_VERSION_FILE has already been set"
+   echoerr "$CI_VERSION_FILE should only be set once"
    exit 1
 fi
 
