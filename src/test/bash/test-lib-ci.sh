@@ -23,37 +23,6 @@ WVPASS [ ! -z $CI_COMMIT ]
 
 cd $MYTMPDIR
 
-# get_version tests
-export ${CI_SYSTEM}_COMMIT=adc83b19e793491b1c6ea0fd8b46cd9f32e592fc
-export ${CI_SYSTEM}_BRANCH=master
-export ${CI_SYSTEM}_PULL_REQUEST=false
-echo $(Version_Get 1.0.0) > NEW_VERSION
-echo "NEW_VERSION=$(cat NEW_VERSION)"
-WVPASS grep -oE "1.0.0-[0-9]{14}-adc83b1" NEW_VERSION
-rm NEW_VERSION
-
-# On a branch with a / in the name
-export ${CI_SYSTEM}_BRANCH=test/branch
-export ${CI_SYSTEM}_PULL_REQUEST=false
-echo $(Version_Get 1.0.0) > NEW_VERSION
-echo "NEW_VERSION=$(cat NEW_VERSION)"
-WVPASS grep -oE "1.0.0-[0-9]{14}-adc83b1-test_branch" NEW_VERSION
-rm NEW_VERSION
-
-# On a branch
-export ${CI_SYSTEM}_BRANCH=testbranch
-export ${CI_SYSTEM}_PULL_REQUEST=false
-echo $(Version_Get 1.0.0) > NEW_VERSION
-echo "NEW_VERSION=$(cat NEW_VERSION)"
-WVPASS grep -oE "1.0.0-[0-9]{14}-adc83b1-testbranch" NEW_VERSION
-
-# With a pull request
-export ${CI_SYSTEM}_PULL_REQUEST=1234
-echo $(Version_Get 1.0.0) > NEW_VERSION
-echo "NEW_VERSION=$(cat NEW_VERSION)"
-WVPASS grep -oE "1.0.0-[0-9]{14}-adc83b1-PR1234" NEW_VERSION
-rm NEW_VERSION
-
 # is_release tests
 # On master
 export ${CI_SYSTEM}_BRANCH=master

@@ -86,7 +86,7 @@ fi
 if [ ! -z $TAG ]; then
     TAG=$TAG
 else
-    TAG=$(cat VERSION)
+    TAG=$(Version_Get)
 fi
 
 if [ "$TAG" = "latest" ]; then

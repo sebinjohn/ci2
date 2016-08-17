@@ -18,27 +18,6 @@
 
 set -u
 
-# Library import helper
-function import() {
-    IMPORT_PATH="${BASH_SOURCE%/*}"
-    if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
-    . $IMPORT_PATH/$1
-    [ $? != 0 ] && echo "$1 import error" 1>&2 && exit 1
-}
-
-import lib-ci
-
-if [ ! -f "version.sbt" ]; then
-    echo "version.sbt file not found." 1>&2
-    exit 1
-fi
-
-new_version=$(Version_Get "$(cat version.sbt)")
-if [ -z $new_version ]; then
-    exit 1
-fi
-
-echo "Version Mapped: $version => $new_version"
-echo "version in ThisBuild := \"$new_version\"" > version.sbt
-
-exit 0
+IMPORT_PATH="${BASH_SOURCE%/*}"
+if [[ ! -d "$IMPORT_PATH" ]]; then IMPORT_PATH="$PWD"; fi
+$IMPORT_PATH/setup-version.sh sbt

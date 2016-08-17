@@ -4,6 +4,8 @@
 . ${TEST_PATH}/wvtest.sh
 . ${MAIN_PATH}/lib-ci
 
+CI_Env_Adapt $(CI_Env_Get)
+
 MYTMPDIR=$( Mktemp_Portable dir ${PWD} )
 echo -e "version in ThisBuild := \"1.0.0\"\nuniqueVersionSettings" > $MYTMPDIR/version.sbt
 cd $MYTMPDIR
@@ -11,6 +13,7 @@ cd $MYTMPDIR
 
 versionOrig=$(cat version.sbt)
 # Check command works
+rm $CI_VERSION_FILE
 WVPASS ${MAIN_PATH}/sbt-ci-setup-version.sh
 # Check command modifies version
 WVPASSNE "$(cat version.sbt)" "$versionOrig"
@@ -22,4 +25,4 @@ WVPASSEQ   $(cat version.sbt | wc -l)  1
 rm version.sbt
 WVFAIL ${MAIN_PATH}/sbt-ci-setup-version.sh
 
-rm -rf $MYTMPDIR
+rm -rf $MYTMPDIR $CI_VERSION_FILE

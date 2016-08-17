@@ -43,7 +43,7 @@ If you don't use a versioned approach for pulling in these scripts, there is no 
 * ``sbt-ci-deploy.sh`` - Uses sbt to deploy your artifact
 * ``sbt-ci-setup.sh`` - Creates the SBT credentials file
 * ``sbt-ci-setup-version.sh`` - Sets up the correct "CI" version for the SBT project
-* ``setup-version.sh`` - Replaces the VERSION file with a common ``ver-date-commish``
+* ``setup-version.sh`` - Overrides the semantic version with a common ``ver-date-commish``. Supports both sbt mode and txt mode where it modifies a `VERSION` or `VERSION.txt` file.
 
 ## Writing New Scripts
 
@@ -92,7 +92,7 @@ these scripts.
 6. [Optional to publish SBT project]:
    1. `install` steps:
       1. `ci/sbt-ci-setup.sh` to create the artifactory credentials file
-      1. `ci/sbt-ci-setup-version.sh` to generate version with date + commish
+      1. `ci/setup-version.sh sbt` to generate version with date + commish
       1. `cp /etc/sbt/sbtopts .sbtopts; echo "-Dsbt.global.base=$TRAVIS_BUILD_DIR/ci" >> .sbtopts` to make the artifactory credentials globally available to SBT
    1. `script` steps:
       1. `sbt test package`

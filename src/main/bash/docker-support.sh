@@ -234,8 +234,7 @@ if [[ ${MODE} == "setup" ]]; then
     log "vars-check" check_vars_docker_login
     log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} -e ${CI_EMAIL} ${REGISTRY_HOST}
   fi
-  log "set_version"
-  Version_Write_New
+  VERSION=$(Version_Get)
   log "set_vars"
   set_vars
   log "create_ci_vars" create_ci_vars
