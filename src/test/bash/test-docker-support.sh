@@ -59,6 +59,7 @@ echo "fake-site-publish: \$@"
 echo \$@ > $MYTMPDIR/TEST_ci-publish-site
 EOF
 
+
 #--------------------- Perform Tests -------------
 # Check the script fails properly
 #----------------------------------------------------
@@ -71,7 +72,7 @@ WVFAIL ${MAIN_PATH}/docker-support.sh unsupported
 #----------------------------------------------------
 
 echo "1.2.3" > VERSION
-versionOrig=$( cat VERSION )
+WVPASS ${MAIN_PATH}/setup-version.sh txt
 
 #----------------------------------------------------
 # Invalid VAR check tests
@@ -166,14 +167,6 @@ WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 WVPASS [ -f $HOME/.docker/config.json ]
 
 #----------------------------------------------------
-# test - calling docker-support.sh calls creates  VERSION file .. so that should have happened
-#        Check command modifies version
-#----------------------------------------------------
-
-versionNew=$( cat VERSION )
-WVPASSNE "$versionNew" "$versionOrig"
-
-#----------------------------------------------------
 # test - the setup creates an environments file for .drone.yml .travis.yml import (. ./ci-env-vars.sh )
 #        let's check it
 #----------------------------------------------------
@@ -183,9 +176,9 @@ envVars=( $(cat ci-env-vars.sh) )
 expected=(\
     "#!/bin/bash" \
     "export REGISTRY_HOST=${REGISTRY_HOST}" \
-    "export VERSION=${versionNew}" \
+    "export VERSION=$(Version_Get)" \
     "export DOCKER_IMAGE=${DOCKER_IMAGE}" \
-    "export DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_IMAGE}:${versionNew}" \
+    "export DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
 )
 WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 
@@ -204,7 +197,7 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
 expected=(\
     "push" \
-    "${REGISTRY_HOST}/${DOCKER_IMAGE}:${versionNew}" \
+    "${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
 )
 WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 
@@ -219,7 +212,7 @@ WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
 # check that docker-support wrote out the various vars
 siteConfigVars=( $(cat _site/_config.yml) )
 expected=(\
-    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_IMAGE}:${versionNew}" \
+    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
     "dockerImage: ${DOCKER_IMAGE}" \
     "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_IMAGE}" \
     "registryHost: ${REGISTRY_HOST}"

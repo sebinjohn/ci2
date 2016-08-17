@@ -6,6 +6,8 @@
 . ${TEST_PATH}/wvtest.sh
 . ${MAIN_PATH}/lib-ci
 
+CI_Env_Adapt $(CI_Env_Get)
+
 # Base dir for sbt
 TMPBASE=$( Mktemp_Portable dir )
 
@@ -31,6 +33,9 @@ git add -A || exit 1
 git commit -m "Initial commit" || exit 1
 git symbolic-ref HEAD refs/heads/master || exit 1
 
+rm $CI_VERSION_FILE
+WVPASS ${MAIN_PATH}/setup-version.sh sbt
+
 # Test that we fail when there is no git remote.
 export FORCE_PUBLISH=yes
 WVFAIL ${MAIN_PATH}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
@@ -42,5 +47,5 @@ git remote add origin $(readlink_f $TMPREMOTE) || exit 1
 WVPASS ${MAIN_PATH}/sbt-ci-build-doc.sh "http://testroot" "http://testsourceroot"
 
 # Remove temporary directories
-rm -rf .gitkeep .git $TMPBASE $TMPREMOTE
+rm -rf .gitkeep .git $TMPBASE $TMPREMOTE $CI_VERSION_FILE
 export PATH=$ORIG_PATH

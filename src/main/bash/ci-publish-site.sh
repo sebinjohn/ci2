@@ -64,16 +64,7 @@ if [ -z "$commit_msg" ]; then
     commit_msg="CI Documentation Update"
 fi
 
-if [ ! -e VERSION ]; then
-    echoerr "VERSION file not found."
-    exit 1
-fi
-
-version=$(cat VERSION)
-if [ -z "$version" ]; then
-    echoerr "VERSION file was empty."
-    exit 1
-fi
+version=$(Version_Get)
 
 CI_EMAIL=${CI_EMAIL?"is not defined"}
 CI_USERNAME=${CI_USERNAME?"is not defined"}

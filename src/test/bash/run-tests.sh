@@ -48,5 +48,3 @@ function run_tests() {
 init
 run_tests
 cleanup
-
-
