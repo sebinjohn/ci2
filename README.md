@@ -19,12 +19,12 @@ Latest releases can be found here [ci2 releases](https://commbank.artifactoryonl
 
 ## Disclaimer
 
-This module is intended to be "pulled" in using curl or wget, as an external dependency. 
+This module is intended to be "pulled" in using curl or wget, as an external dependency.
 This is the only supported approach.
 
 If you don't use a versioned approach for pulling in these scripts, there is no guarantee of your build succeeding, as ci2 may be updated at any time.
 
-## Scripts 
+## Scripts
 
 * ``lib-ci`` - Common BASH functions used by all the scripts
 * ``artifactory-release.sh`` - Release a file (binary, archive, etc) to an artifactory server
@@ -47,7 +47,7 @@ If you don't use a versioned approach for pulling in these scripts, there is no 
 
 ## Writing New Scripts
 
-If you find a use case that does not match the above provided list, then please look at 
+If you find a use case that does not match the above provided list, then please look at
 
 * existing scripts; and
 * the matching ``src/tests/`` folder for examples of how to write tests for your new script
@@ -63,13 +63,13 @@ ENABLE_LOCAL_CI=1 ./run-tests.sh
 
 ## Principles
 
-These are some underlying principles for how we do CI and in particular how we design and utilise 
+These are some underlying principles for how we do CI and in particular how we design and utilise
 these scripts.
 
-* In build configurations the building and unit testing of the code should not require any CI 
+* In build configurations the building and unit testing of the code should not require any CI
   scripts and be expressed in a similar way that a user would run locally.
 * Our standard versioning approach is semantic version plus the build time stamp plus the commish.
-* We predominantly utilise our CI scripts to customise the deployment and publication process. This 
+* We predominantly utilise our CI scripts to customise the deployment and publication process. This
   is custom to our environments and there is no expectation that the user will do a publish manually.
 * We use CI scripts to set up custom version for builds in a way that is transparent to the build
   tooling. Users provide the semantic version in a way that is suitable for their particular tooling
@@ -84,6 +84,12 @@ these scripts.
    file as a template.
 2. Install the travis client. Instructions are available at https://github.com/travis-ci/travis.rb. **Please be aware that the installation and usage of the travis client often result in network and SSL Errors from within the office network (including wifi). Tethering to  a 4G device is one workaround for this.**
 3. Login. `travis login --pro` or `travis login --org`.
+  * If you wish to use token authorisation instead of providing your
+    github credentials, generate a Personal Access Token on github.com
+    with `repo`, `admin:repo_hook`, `user:email` scopes, and login
+    using:
+    * `travis login --pro --github-token <TOKEN>` (or `--org` for open
+       source repos).
 4. From project folder (same directory as `.travis.yml`), enable your project with Travis CI by running the command:
    `travis enable --pro` or `travis enable --org`.
 5. Add the encrypted artifactory username and password by running these commands in the same directory as `.travis.yml`:
