@@ -25,6 +25,11 @@ if [[ ! -e ci/ivy.credentials ]]; then
   exit 1
 fi
 
+# Check that a helpful error message is printed when ARTIFACTORY_USERNAME is not set
+unset CI_TEST_RUNNING
+WVFAIL bash -c "${MAIN_PATH}/sbt-ci-setup.sh 2>stderr.log"
+WVPASS grep -q "^ERROR: Artifactory credentials were not injected into this build" stderr.log
+
 #----------------------------------------------------
 # Cleanup
 #----------------------------------------------------

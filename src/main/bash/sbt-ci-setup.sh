@@ -17,6 +17,18 @@
 
 # Artifactory credentials aren't required when testing
 if [ -z "$CI_TEST_RUNNING" ]; then
+    if [ -z "$ARTIFACTORY_USERNAME" ]; then
+	cat >&2 <<-EOF
+		ERROR: Artifactory credentials were not injected into this build
+		Possible causes:
+		1. This is a pull request originating from a fork of the repo.
+		   Sorry, this scenario is not supported. Please close the PR, push your branch
+		   to the target repo, and raise a new PR from there.
+		2. Encrypted artifactory credentials have not been configured for this Travis build.
+		   Refer to the README at https://github.com/CommBank/ci2 for further instructions.
+	EOF
+	exit 1
+    fi
     set -u
 fi
 
