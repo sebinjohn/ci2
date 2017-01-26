@@ -64,6 +64,35 @@ export ${CI_SYSTEM}_PULL_REQUEST=true
 echo "IS_RELEASE=$(Is_Release)"
 WVPASS [ $(Is_Release) == 1 ]
 
+# Store current git context
+ORIG_GIT_DIR=$GIT_DIR
+ORIG_GIT_WORK_TREE=$GIT_WORK_TREE
+
+# Commit contains the special "ci: publish" message
+TMP_GIT_REPO=$( Mktemp_Portable dir ${PWD} )
+export GIT_DIR=$TMP_GIT_REPO
+export GIT_WORK_TREE=$TMP_GIT_REPO
+git init || exit 1
+git config user.email "zbi+test@cba.com.au"
+git config user.name "WVTEST"
+export ${CI_SYSTEM}_BRANCH=feature
+export ${CI_SYSTEM}_PULL_REQUEST=true
+
+git commit --allow-empty -m "CI: Publish" || exit 1
+export ${CI_SYSTEM}_COMMIT=$(git rev-parse HEAD)
+echo "IS_RELEASE=$(Is_Release)"
+WVPASS [ $(Is_Release) == 0 ]
+
+git commit --allow-empty -m "Do not Publish" || exit 1
+export ${CI_SYSTEM}_COMMIT=$(git rev-parse HEAD)
+echo "IS_RELEASE=$(Is_Release)"
+WVPASS [ $(Is_Release) == 1 ]
+
+# Restore context
+export GIT_DIR=$ORIG_GIT_DIR
+export GIT_WORK_TREE=$ORIG_GIT_WORK_TREE
+
+
 # Local CI should be enabled when we enable the flag
 export ENABLE_LOCAL_CI=yes
 WVPASS CI_Env_Adapt "LOCAL"

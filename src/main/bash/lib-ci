@@ -186,6 +186,8 @@ function Is_Release() {
       echo 0
     elif [[ $CI_PULL_REQUEST == false && $(Is_In_List "$CI_BRANCH" "${RELEASE_BRANCHES}") ]]; then
         echo 0
+    elif git show -s --format=%s $CI_COMMIT | grep -q -i 'ci: publish'; then
+        echo 0
     else
         echo 1
     fi
