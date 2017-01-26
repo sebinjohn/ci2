@@ -165,14 +165,14 @@ function Version_Get() {
         echoerr "Version hasn't been set. Need to run setup-version.sh first"
         exit 1
     fi
-    
+
     VERSION=$(cat $CI_VERSION_FILE)
 
     if [ -z "$VERSION" ]; then
         echoerr "$CI_VERSION_FILE file was empty."
         exit 1
     fi
-    
+
     echo $VERSION
 }
 
@@ -226,7 +226,7 @@ Publish_Subdirectory_To_Branch() {
     local input_directory="$2"
     local commit_msg="$3"
     local remote="$4"
-    
+
     local directory="$(readlink_f $input_directory)"
 
     if [ -z "$remote" ]; then
@@ -237,12 +237,12 @@ Publish_Subdirectory_To_Branch() {
             exit 1
         fi
     fi
-    
+
     if [ -z "$git_branch" ]; then
         echoerr "No git branch specified. Aborting."
         exit 1
     fi
-    
+
     # Set git configuration if it is not already set.
     if [ -z "$(git config --global user.email)" ]; then
         git config --global user.email ci@ci
@@ -251,14 +251,14 @@ Publish_Subdirectory_To_Branch() {
     if [ -z "$(git config --global user.name)" ]; then
         git config --global user.name Publish_Subdirectory_To_Branch
     fi
-    
+
     # Don't mess up .git dir branch state in real work dir - store where we were
     # Only relevant for local testers.
     ORIG_BRANCH=$(git symbolic-ref HEAD)
-    
+
     ORIG_GIT_DIR=$GIT_DIR
     ORIG_GIT_WORK_TREE=$GIT_WORK_TREE
-    
+
     export GIT_DIR=$(pwd)/.git
     export GIT_WORK_TREE=$directory
 
@@ -266,9 +266,9 @@ Publish_Subdirectory_To_Branch() {
     if [ "$(CI_Env_Get)" = "TRAVIS" ]; then
         git fetch $remote $git_branch:$git_branch
     fi
-    
+
     git symbolic-ref HEAD refs/heads/$git_branch
-    
+
     if ! git show-ref refs/remotes/$remote/$git_branch; then
         # Create an empty branch.
         echoerr "Warning: $git_branch will be created (it did not exist on the remote)"
@@ -279,16 +279,16 @@ Publish_Subdirectory_To_Branch() {
         # Track the existent branch
         echo "Checking out current $git_branch"
         git branch $git_branch -f $remote/$git_branch
-        
+
         # Read the tree into the index so the build result is auto-available
         git read-tree $git_branch
     fi
-    
+
     git add -A
     git commit -m "$commit_msg"
-    
+
     git symbolic-ref HEAD $ORIG_BRANCH
-    
+
     export GIT_DIR=$ORIG_GIT_DIR
     export GIT_WORK_TREE=$ORIG_GIT_WORK_TREE
 }
