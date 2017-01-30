@@ -8,10 +8,6 @@ cache:
     - $HOME/.ivy2
     - $HOME/.m2
 
-before_script:
-  - gem install bashcov
-  - gem install coveralls
-
 script:
   - bashcov -- ./src/test/bash/run-tests.sh
   - ./src/main/bash/setup-version.sh
