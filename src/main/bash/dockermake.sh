@@ -15,7 +15,7 @@
 # RELEASE_BRANCHES environment variable can be set to an array of branches
 # for which `docker push` should be allowed to run. By default it is set to
 # `master`
-# 
+#
 # Example Usage:
 # ./ci/dockermake.sh build myimage1 myimage2 --build-arg=someval
 
@@ -54,7 +54,7 @@ ACTION=$1
 shift
 
 # Extract image arguments until flags
-for arg in $1; do
+for arg in $@; do
     if [[ "$arg" == -* ]]; then
         break
     fi
@@ -75,7 +75,7 @@ done < <(find * -name Dockerfile -type f -print | sort)
 if [ ${#IMAGE_REQUESTS[@]} -gt 0 ]; then
     for j in ${IMAGE_REQUESTS[@]}; do
         if [ $(Array_Contains "$j" "${IMAGES[@]}") -eq 0 ]; then
-            TOBUILD+=( "$i" )
+            TOBUILD+=( "$j" )
         fi
     done
 else

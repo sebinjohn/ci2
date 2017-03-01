@@ -5,7 +5,6 @@
 . ${TEST_PATH}/wvtest.sh
 . ${MAIN_PATH}/lib-ci
 
-
 ORIG_PATH=$PATH
 SCRIPT_DIR=${MAIN_PATH}
 
@@ -115,6 +114,36 @@ EOF
 chmod +x $TMPPATHORDER/docker
 
 WVPASS ${SCRIPT_DIR}/dockermake.sh build tmpDOCKERIMAGEyyy tmpDOCKERIMAGExxx
+
+# check build arguments were passed correctly for tmpDOCKERIMAGEyyy
+dockerArgs=( $(cat $MYTMPDIR/result_tmpDOCKERIMAGEyyy ) )
+
+expected=(\
+    "build" \
+    "--build-arg=http_proxy=fakeproxy" \
+    "--build-arg=https_proxy=fakeproxy" \
+    "--build-arg=ftp_proxy=fakeproxy" \
+    "-t" \
+    "PREFIXtmpDOCKERIMAGEyyy:$(cat VERSION)" \
+    "tmpDOCKERIMAGEyyy" \
+)
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
+
+# check build arguments were passed correctly for tmpDOCKERIMAGExxx
+dockerArgs=( $(cat $MYTMPDIR/result_tmpDOCKERIMAGExxx ) )
+
+expected=(\
+    "build" \
+    "--build-arg=http_proxy=fakeproxy" \
+    "--build-arg=https_proxy=fakeproxy" \
+    "--build-arg=ftp_proxy=fakeproxy" \
+    "-t" \
+    "PREFIXtmpDOCKERIMAGExxx:$(cat VERSION)" \
+    "tmpDOCKERIMAGExxx" \
+)
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 
 cd ..
 
