@@ -7,9 +7,11 @@ Scripts used for Continuous Integration
 
 ## Overview
 
-ci2 is a "set" of CI helper scripts. To assist with pushing, and publishing versions of code.
+ci2 is a "set" of CI helper scripts to assist with pushing, and publishing 
+versions of code. It supports Travis, Drone and TeamCity.
 
-To depend on this REPO add the following to your ``.travis.yml`` / ``.drone.yml``
+To depend on this REPO for use with Travis or Drone, add the following to your 
+``.travis.yml`` or ``.drone.yml``:
 
 ```
 curl https://commbank.artifactoryonline.com/commbank/binaries/ci/ci-<VERSION>.tar.gz | tar xz
@@ -19,10 +21,11 @@ Latest releases can be found here [ci2 releases](https://commbank.artifactoryonl
 
 ## Disclaimer
 
-This module is intended to be "pulled" in using curl or wget, as an external dependency.
-This is the only supported approach.
+This module is intended to be "pulled" in using curl or wget, as an external
+dependency. This is the only supported approach.
 
-If you don't use a versioned approach for pulling in these scripts, there is no guarantee of your build succeeding, as ci2 may be updated at any time.
+If you don't use a versioned approach for pulling in these scripts, there is no
+guarantee of your build succeeding, as ci2 may be updated at any time.
 
 ## Scripts
 
@@ -47,7 +50,8 @@ If you don't use a versioned approach for pulling in these scripts, there is no 
 
 ## Writing New Scripts
 
-If you find a use case that does not match the above provided list, then please look at
+If you find a use case that does not match the above provided list, then please
+look at
 
 * existing scripts; and
 * the matching ``src/tests/`` folder for examples of how to write tests for your new script

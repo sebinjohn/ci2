@@ -19,7 +19,6 @@
 # Example Usage:
 # ./ci/dockermake.sh build myimage1 myimage2 --build-arg=someval
 
-
 set -u
 
 # Library import helper
@@ -68,7 +67,7 @@ FLAGS=("$@")
 # Find all the docker images, use the directory structure for their path.
 while read i ; do
     IMAGES+=( "$(dirname $i)" )
-done < <(find * -name Dockerfile -type f -print | sort)
+done < <(find -H -L * -name Dockerfile -type f -print | sort)
 
 # Find the images we were requested to build, or build all if none specified.
 # Note: this preserves build order to command line order.
@@ -106,9 +105,9 @@ do_build() {
 
     for i in ${TOBUILD[@]}; do
         docker build ${BUILD_ARGS[@]} \
-                     --build-arg=http_proxy=$http_proxy \
-                     --build-arg=https_proxy=$http_proxy \
-                     --build-arg=ftp_proxy=$http_proxy \
+                     --build-arg=http_proxy="$http_proxy" \
+                     --build-arg=https_proxy="$http_proxy" \
+                     --build-arg=ftp_proxy="$http_proxy" \
                      ${FLAGS[@]} \
                      -t ${PREFIX}${i}:${TAG} ${i}
          exit_code=$?

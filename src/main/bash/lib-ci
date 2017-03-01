@@ -24,12 +24,12 @@ function echoerr() {
 }
 
 # The following set of hooks allow you to inline defer function and method calls
-# in bash until the script terminates. It *requires* a line like 
-# `trap "atexit_commands" INT TERM EXIT` in the body of the bash script in order to 
+# in bash until the script terminates. It *requires* a line like `trap
+# "atexit_commands" INT TERM EXIT` in the body of the bash script in order to
 # work. Functions are a stack, and are executed in reverse order.
 # Typical usage:
-# trap "atexit_commands ; exit 0" INT TERM EXIT
-# atexit echo "This is run at exit"
+# trap "atexit_commands ; exit 0" INT TERM EXIT atexit echo "This is run at
+# exit"
 export atexit_hooks=()
 function atexit() {
     val=$(echo "$@")
@@ -67,6 +67,8 @@ function CI_Env_Get() {
         CI_SYSTEM=TRAVIS
     elif [ "$DRONE" = "true" ]; then
         CI_SYSTEM=DRONE
+    elif [ ! -z "${TEAMCITY_VERSION+x}" ]; then
+        CI_SYSTEM=TEAMCITY
     elif [ ! -z "$ENABLE_LOCAL_CI" ]; then
         echo "ENABLE_LOCAL_CI is set - Assuming Local." 1>&2
         CI_SYSTEM=LOCAL
@@ -104,6 +106,41 @@ function CI_Env_Adapt() {
         CI_BUILD_DIR=$DRONE_BUILD_DIR
         CI_BUILD_URL=$DRONE_BUILD_URL
         CI_TAG=$DRONE_TAG
+        ;;
+    TEAMCITY)
+        # Predefined build parameters for TeamCity 10:
+        # https://confluence.jetbrains.com/display/TCD10/Predefined+Build+Parameters
+        #
+        # By default, we get
+        #  - TEAMCITY_VERSION        - (unused here - confirms TeamCity as CI)
+        #  - TEAMCITY_PROJECT_NAME   - (unused here)
+        #  - TEAMCITY_BUILDCONF_NAME - CI_REPO (default, can be overridden)
+        #  - BUILD_IS_PERSONAL       - (unused here)
+        #  - BUILD_NUMBER            - CI_JOB_NUMBER
+        #  - BUILD_VCS_NUMBER        - CI_COMMIT
+        #
+        # The following can optionally be set manually for the purpose of
+        # overriding the values that you'd otherwise get:
+        #  - TEAMCITY_REPO             - override for CI_REPO
+        #  - TEAMCITY_BRANCH           - CI_BRANCH (otherwise branch is from git)
+        #  - TEAMCITY_TAG              - CI_TAG (otherwise tag is from git)
+        #  - TEAMCITY_PULL_REQUEST     - override for CI_PULL_REQUEST (otherwise false)
+        #  - TEAMCITY_BUILD_WORKINGDIR - CI_BUILD_DIR (otherwise pwd)
+        #
+        # NOTE: remember that a git repository is only present when you use an
+        #       agent checkout in TeamCity (ie. you won't get a git repository
+        #       with a server-side checkout). Configure the VCS settings
+        #       accordingly.
+        CI_NAME=teamcity
+        CI_REPO="${TEAMCITY_REPO:-$TEAMCITY_BUILDCONF_NAME}"
+        CI_BRANCH="${TEAMCITY_BRANCH:-$(git symbolic-ref HEAD | cut -d'/' -f3-)}"
+        CI_COMMIT="${BUILD_VCS_NUMBER:-$(git rev-parse HEAD)}"
+        CI_BUILD_NUMBER="$BUILD_NUMBER"
+        CI_PULL_REQUEST="${TEAMCITY_PULL_REQUEST:-false}"
+        CI_JOB_NUMBER="$TEAMCITY_BUILD_ID"
+        CI_BUILD_DIR="${TEAMCITY_BUILD_WORKINGDIR:-$(pwd)}"
+        CI_BUILD_URL="https://build.dev.cba/viewLog.html?buildId=${TEAMCITY_BUILD_ID}"
+        CI_TAG="${TEAMCITY_TAG:-$(git name-rev --name-only --tags HEAD | sed 's/^undefined$//')}"
         ;;
     LOCAL)
         if [ ! -z "$ENABLE_LOCAL_CI" ]; then
@@ -306,12 +343,12 @@ function Mktemp_Portable() {
 
   local tmpTemplate="${tmppath}/_tmp-${caller}.XXXXXXXXX"
 
-  if [[ ${tmptype} == "file" ]]; then 
+  if [[ ${tmptype} == "file" ]]; then
     theTmp=$( mktemp "${tmpTemplate}" )
-  elif [[ ${tmptype} == "dir" ]]; then 
+  elif [[ ${tmptype} == "dir" ]]; then
     theTmp=$( mktemp -d "${tmpTemplate}" )
-  else 
-    echo "usage: Mktemp_Portable [ file | dir ]" 1>&2 
+  else
+    echo "usage: Mktemp_Portable [ file | dir ]" 1>&2
     exit 1
   fi
   echo ${theTmp}
