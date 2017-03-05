@@ -148,6 +148,9 @@ WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 # Test passing an explicit tag (which will override the version provided by
 # the Version_Get function).
 
+cd $WORKDIR
+export PATH=$TMPPATH:$ORIG_PATH
+
 # Fake dockerfile
 mkdir tmpDOCKERIMAGECUSTOMTAG
 touch tmpDOCKERIMAGECUSTOMTAG/Dockerfile
@@ -156,8 +159,12 @@ touch tmpDOCKERIMAGECUSTOMTAG/Dockerfile
 cat <<EOF > $TMPPATH/docker
 #!/bin/bash
 echo "fake-docker: \$@"
+for i in \$@; do
+    dest=result_\$i
+done
 echo \$@ > $MYTMPDIR/\$dest
 EOF
+chmod +x "$TMPPATH/docker"
 
 export TAG='FROZNICKLE-4.2'
 
@@ -168,7 +175,7 @@ WVPASS ${SCRIPT_DIR}/dockermake.sh build \
        --build-arg somearg2=somevalue2
 
 # Image with custom tag
-dockerArgs=( $(cat $MYTMPDIR/tmpDOCKERIMAGECUSTOMTAG) )
+dockerArgs=( $(cat $MYTMPDIR/result_tmpDOCKERIMAGECUSTOMTAG) )
 
 expected=(\
     "build" \
@@ -179,14 +186,54 @@ expected=(\
     "--build-arg" \
     "somearg2=somevalue2" \
     "-t" \
-    "PREFIXtmpDOCKERIMAGE:FROZNICKLE-4.2" \
-    "tmpDOCKERIMAGE" \
+    "PREFIXtmpDOCKERIMAGECUSTOMTAG:FROZNICKLE-4.2" \
+    "tmpDOCKERIMAGECUSTOMTAG" \
 )
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 
 # Image with 'latest' tag - it should fail
 export TAG='latest'
 WVFAIL "${SCRIPT_DIR}"/dockermake.sh build \
        tmpDOCKERIMAGECUSTOMTAG
+export TAG=''
+
+# Test publishing an image, using a fake docker for docker push.
+
+# Setup a fake docker binary
+cat <<EOF > $TMPPATH/docker
+#!/bin/bash
+echo "fake-docker: \$@"
+echo \$@ >> $MYTMPDIR/result_push
+EOF
+chmod +x "$TMPPATH/docker"
+
+# Fake dockerfile
+mkdir tmpDOCKERIMAGETOPUSH
+touch tmpDOCKERIMAGETOPUSH/Dockerfile
+
+# Try pushing on the current branch - it should not push the image
+WVPASS "${SCRIPT_DIR}"/dockermake.sh push tmpDOCKERIMAGETOPUSH
+WVFAIL test -e "$MYTMPDIR/result_push"
+
+# Pretend we're on the master branch
+CI_SYSTEM=$(CI_Env_Get)
+export "${CI_SYSTEM}_BRANCH"='master'
+export "${CI_SYSTEM}_PULL_REQUEST"='false'
+
+# Do build and check for the correct arguments
+WVPASS "${SCRIPT_DIR}"/dockermake.sh push tmpDOCKERIMAGETOPUSH
+
+dockerArgs=( $(cat $MYTMPDIR/result_push) )
+
+expected=(\
+    "push" \
+    "PREFIXtmpDOCKERIMAGETOPUSH:$(cat VERSION)"
+    "rmi" \
+    "PREFIXtmpDOCKERIMAGETOPUSH:$(cat VERSION)"
+)
+
+WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 
 cd ..
 
