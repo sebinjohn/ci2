@@ -145,6 +145,49 @@ expected=(\
 
 WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
 
+# Test passing an explicit tag (which will override the version provided by
+# the Version_Get function).
+
+# Fake dockerfile
+mkdir tmpDOCKERIMAGECUSTOMTAG
+touch tmpDOCKERIMAGECUSTOMTAG/Dockerfile
+
+# Setup a fake docker binary
+cat <<EOF > $TMPPATH/docker
+#!/bin/bash
+echo "fake-docker: \$@"
+echo \$@ > $MYTMPDIR/\$dest
+EOF
+
+export TAG='FROZNICKLE-4.2'
+
+# Do a build and check for the correct input arguments.
+WVPASS ${SCRIPT_DIR}/dockermake.sh build \
+       tmpDOCKERIMAGECUSTOMTAG \
+       --build-arg=somearg1=somevalue1 \
+       --build-arg somearg2=somevalue2
+
+# Image with custom tag
+dockerArgs=( $(cat $MYTMPDIR/tmpDOCKERIMAGECUSTOMTAG) )
+
+expected=(\
+    "build" \
+    "--build-arg=http_proxy=fakeproxy" \
+    "--build-arg=https_proxy=fakeproxy" \
+    "--build-arg=ftp_proxy=fakeproxy" \
+    "--build-arg=somearg1=somevalue1" \
+    "--build-arg" \
+    "somearg2=somevalue2" \
+    "-t" \
+    "PREFIXtmpDOCKERIMAGE:FROZNICKLE-4.2" \
+    "tmpDOCKERIMAGE" \
+)
+
+# Image with 'latest' tag - it should fail
+export TAG='latest'
+WVFAIL "${SCRIPT_DIR}"/dockermake.sh build \
+       tmpDOCKERIMAGECUSTOMTAG
+
 cd ..
 
 rm -rf $TMPPATH $MYTMPDIR $TMPPATHORDER $WORKDIR
