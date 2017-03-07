@@ -53,9 +53,9 @@ function usage() {
   echo "  -e <CI_EMAIL>        - used for _site doc publish-ing - defaults to ${CI_EMAIL}" 1>&2
   echo "  -n <CI_USERNAME>     - used for _site doc publish-ing - defaults to ${CI_USERNAME}" 1>&2
   echo
-  echo "  -i <DOCKER_REPO>     - Docker tag .. user/tag" 1>&2
+  echo "  -i <DOCKER_REPO>     - Docker repository, e.g. user/tag" 1>&2
   echo " OR" 1>&2
-  echo "  -d <DOCKER_TAG_NAME>  - Docker tag .. registry/user/tag" 1>&2
+  echo "  -d <DOCKER_IMAGE>  - Docker image, e.g. registry/repo:tag" 1>&2
 }
 
 
@@ -109,7 +109,7 @@ function get_cmd_opts() {
         DOCKER_LOGIN=true
         ;;
       d)
-        DOCKER_TAG_NAME=${OPTARG}
+        DOCKER_IMAGE=${OPTARG}
         ;;
       ?)
         echo "Invalid option: -$OPTARG" >&2
@@ -146,7 +146,7 @@ function check_vars_docker_login() {
 function check_vars_docker_publish() {
   check_vars_docker_login
   VERSION=${VERSION?"is not defined"}
-  DOCKER_TAG_NAME=${DOCKER_TAG_NAME?"is not defined"}
+  DOCKER_IMAGE=${DOCKER_IMAGE?"is not defined"}
 }
 
 function check_vars_site_publish() {
@@ -155,7 +155,7 @@ function check_vars_site_publish() {
 }
 
 function set_vars() {
-  DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_REPO}:${VERSION}
+  DOCKER_IMAGE=${REGISTRY_HOST}/${DOCKER_REPO}:${VERSION}
 }
 
 #
@@ -166,7 +166,7 @@ function dump_vars() {
 REGISTRY_HOST=${REGISTRY_HOST}
 VERSION=${VERSION}
 DOCKER_REPO=${DOCKER_REPO}
-DOCKER_TAG_NAME=${DOCKER_TAG_NAME}
+DOCKER_IMAGE=${DOCKER_IMAGE}
 EOF
 
 }
@@ -183,7 +183,7 @@ function create_ci_vars() {
      export REGISTRY_HOST=${REGISTRY_HOST}
      export VERSION=${VERSION}
      export DOCKER_REPO=${DOCKER_REPO}
-     export DOCKER_TAG_NAME=${DOCKER_TAG_NAME}
+     export DOCKER_IMAGE=${DOCKER_IMAGE}
 EOF
 
   chmod 755 ci-env-vars.sh
@@ -248,20 +248,17 @@ if [[ ${MODE} == "publish" ]]; then
   else
     log "docker-login -- ${REGISTRY_USERNAME}@${REGISTRY_HOST}" docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} -e ${CI_EMAIL} ${REGISTRY_HOST}
   fi
-  log "docker-publish -- docker push ${DOCKER_TAG_NAME}" only_on_release docker push ${DOCKER_TAG_NAME}
-  log "docker-remove" docker rmi ${DOCKER_TAG_NAME}
+  log "docker-publish -- docker push ${DOCKER_IMAGE}" only_on_release docker push ${DOCKER_IMAGE}
+  log "docker-remove" docker rmi ${DOCKER_IMAGE}
   if [[ "$SITE_PUBLISH" == "true" ]]; then
     log "vars-check-publish" check_vars_site_publish
     if [ -d _site ]; then
       log "add-site-config" 
 
-      echo "dockerTagName: ${DOCKER_TAG_NAME}" >> _site/_config.yml
+      echo "dockerImage: ${DOCKER_IMAGE}" >> _site/_config.yml
+      echo "dockerRegistry: ${REGISTRY_HOST}" >> _site/_config.yml
       echo "dockerRepo: ${DOCKER_REPO}" >> _site/_config.yml
-      echo "dockerImage: ${REGISTRY_HOST}/${DOCKER_REPO}" >> _site/_config.yml
-
-      # WARN: dockerImageFull is deprecated, use dockerImage instead
-      echo "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_REPO}" >> _site/_config.yml
-
+      echo "dockerTag: ${VERSION}" >> _site/_config.yml
       echo "registryHost: ${REGISTRY_HOST}" >> _site/_config.yml
 
       log "_site/config.yml" cat _site/_config.yml

@@ -79,16 +79,16 @@ WVPASS ${MAIN_PATH}/setup-version.sh txt
 #----------------------------------------------------
 # these should fail because a few environment vars are not setup
 
-WVFAIL ${MAIN_PATH}/docker-support.sh setup 
+WVFAIL ${MAIN_PATH}/docker-support.sh setup
 WVFAIL ${MAIN_PATH}/docker-support.sh publish
 
 # now let's get specific
 # ---- setup tests
-WVFAIL ${MAIN_PATH}/docker-support.sh setup 
+WVFAIL ${MAIN_PATH}/docker-support.sh setup
 export REGISTRY_HOST=someserver.foobar
-WVFAIL ${MAIN_PATH}/docker-support.sh setup 
+WVFAIL ${MAIN_PATH}/docker-support.sh setup
 export DOCKER_REPO=build/my-special-docker
-WVPASS ${MAIN_PATH}/docker-support.sh setup 
+WVPASS ${MAIN_PATH}/docker-support.sh setup
 
 
 # user/pass for a login
@@ -124,7 +124,7 @@ WVPASS [ ! -f $HOME/.docker/config.json ]
 #
 export REGISTRY_USERNAME=user
 export REGISTRY_PASSWORD=password
-WVPASS ${MAIN_PATH}/docker-support.sh publish 
+WVPASS ${MAIN_PATH}/docker-support.sh publish
 WVPASS [ -f $HOME/.docker/config.json ]
 
 WVFAIL ${MAIN_PATH}/docker-support.sh publish -s
@@ -133,7 +133,7 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 
 # ^^ all env vars are setup now, so it will work in the next run
 
-# ensure that no _site/config.yml was created at this stage 
+# ensure that no _site/config.yml was created at this stage
 # There is no _site dir at this juncture
 WVPASS [ ! -f $MYTMPDIR/_site/config.yml ]
 
@@ -178,12 +178,12 @@ expected=(\
     "export REGISTRY_HOST=${REGISTRY_HOST}" \
     "export VERSION=$(Version_Get)" \
     "export DOCKER_REPO=${DOCKER_REPO}" \
-    "export DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
+    "export DOCKER_IMAGE=${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
 )
 WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 
 #----------------------------------------------------
-# test - docker-support.sh publish will call 'docker push ${DOCKER_TAG_NAME}' - but only on a release branch
+# test - docker-support.sh publish will call 'docker push ${DOCKER_IMAGE}' - but only on a release branch
 #        so we will test that - we have the fake docker shell script going
 #----------------------------------------------------
 
@@ -197,7 +197,7 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
 expected=(\
     "push" \
-    "${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
+    "${DOCKER_IMAGE}" \
 )
 WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 
@@ -212,10 +212,10 @@ WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
 # check that docker-support wrote out the various vars
 siteConfigVars=( $(cat _site/_config.yml) )
 expected=(\
-    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
+    "dockerImage: ${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
+    "dockerRegistry: ${REGISTRY_HOST}" \
     "dockerRepo: ${DOCKER_REPO}" \
-    "dockerImage: ${REGISTRY_HOST}/${DOCKER_REPO}" \
-    "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_REPO}" \
+    "dockerTag: $(Version_Get)" \
     "registryHost: ${REGISTRY_HOST}"
 )
 WVPASSEQ "$(echo ${siteConfigVars[@]})" "$(echo ${expected[@]})"
@@ -234,7 +234,7 @@ WVPASS [ ! -f $MYTMPDIR/TEST_ci-publish-site ]
 dockerRmiArgs=( $(cat $MYTMPDIR/TEST_docker-rmi) )
 expected=(\
     "rmi" \ 
-    "${DOCKER_TAG_NAME}" \
+    "${DOCKER_IMAGE}" \
 )
 WVPASSEQ "$(echo ${dockerRmiArgs[@]})" "$(echo ${expected[@]})"
 
