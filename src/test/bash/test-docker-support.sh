@@ -87,7 +87,7 @@ WVFAIL ${MAIN_PATH}/docker-support.sh publish
 WVFAIL ${MAIN_PATH}/docker-support.sh setup 
 export REGISTRY_HOST=someserver.foobar
 WVFAIL ${MAIN_PATH}/docker-support.sh setup 
-export DOCKER_IMAGE=build/my-special-docker
+export DOCKER_REPO=build/my-special-docker
 WVPASS ${MAIN_PATH}/docker-support.sh setup 
 
 
@@ -177,8 +177,8 @@ expected=(\
     "#!/bin/bash" \
     "export REGISTRY_HOST=${REGISTRY_HOST}" \
     "export VERSION=$(Version_Get)" \
-    "export DOCKER_IMAGE=${DOCKER_IMAGE}" \
-    "export DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
+    "export DOCKER_REPO=${DOCKER_REPO}" \
+    "export DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
 )
 WVPASSEQ "$(echo ${envVars[@]})" "$(echo ${expected[@]})"
 
@@ -197,7 +197,7 @@ WVPASS ${MAIN_PATH}/docker-support.sh publish -s
 pushArgs=( $(cat $MYTMPDIR/TEST_docker-push) )
 expected=(\
     "push" \
-    "${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
+    "${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
 )
 WVPASSEQ "$(echo ${pushArgs[@]})" "$(echo ${expected[@]})"
 
@@ -212,9 +212,10 @@ WVPASSEQ "$(echo ${sitePublish[@]})" "$(echo ${expected[@]})"
 # check that docker-support wrote out the various vars
 siteConfigVars=( $(cat _site/_config.yml) )
 expected=(\
-    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_IMAGE}:$(Version_Get)" \
-    "dockerImage: ${DOCKER_IMAGE}" \
-    "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_IMAGE}" \
+    "dockerTagName: ${REGISTRY_HOST}/${DOCKER_REPO}:$(Version_Get)" \
+    "dockerRepo: ${DOCKER_REPO}" \
+    "dockerImage: ${REGISTRY_HOST}/${DOCKER_REPO}" \
+    "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_REPO}" \
     "registryHost: ${REGISTRY_HOST}"
 )
 WVPASSEQ "$(echo ${siteConfigVars[@]})" "$(echo ${expected[@]})"

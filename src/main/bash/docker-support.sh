@@ -48,12 +48,12 @@ function usage() {
   echo "  -p <REGISTRY_PASSWORD> - will look for this as ENV VAR REGISTRY_PASSWORD by default" 1>&2
   echo "  -r <REGISTRY_HOST>     - defaults to ${REGISTRY_HOST}" 1>&2
   echo 1>&2
-  echo "publish -e <git-email> -n <git-username> [ -i <user/docker-image> | -d <full-docker-tag> ] [ -s ]"
+  echo "publish -e <git-email> -n <git-username> [ -i <user/docker-repo> | -d <full-docker-tag> ] [ -s ]"
   echo "  -s                    - publish the site also"
   echo "  -e <CI_EMAIL>        - used for _site doc publish-ing - defaults to ${CI_EMAIL}" 1>&2
   echo "  -n <CI_USERNAME>     - used for _site doc publish-ing - defaults to ${CI_USERNAME}" 1>&2
   echo
-  echo "  -i <DOCKER_IMAGE>     - Docker tag .. user/tag" 1>&2
+  echo "  -i <DOCKER_REPO>     - Docker tag .. user/tag" 1>&2
   echo " OR" 1>&2
   echo "  -d <DOCKER_TAG_NAME>  - Docker tag .. registry/user/tag" 1>&2
 }
@@ -100,7 +100,7 @@ function get_cmd_opts() {
         REGISTRY_HOST=${OPTARG}
         ;;
       i)
-        DOCKER_IMAGE=$OPTARG
+        DOCKER_REPO=$OPTARG
         ;;
       s)
         SITE_PUBLISH=true
@@ -129,7 +129,7 @@ function get_cmd_opts() {
 #
 function check_vars_base() {
   REGISTRY_HOST=${REGISTRY_HOST?"is not defined"}
-  DOCKER_IMAGE=${DOCKER_IMAGE?"is not defined"}
+  DOCKER_REPO=${DOCKER_REPO?"is not defined"}
 }
 
 function check_vars_auth() {
@@ -155,7 +155,7 @@ function check_vars_site_publish() {
 }
 
 function set_vars() {
-  DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_IMAGE}:${VERSION}
+  DOCKER_TAG_NAME=${REGISTRY_HOST}/${DOCKER_REPO}:${VERSION}
 }
 
 #
@@ -165,7 +165,7 @@ function dump_vars() {
   cat << EOF
 REGISTRY_HOST=${REGISTRY_HOST}
 VERSION=${VERSION}
-DOCKER_IMAGE=${DOCKER_IMAGE}
+DOCKER_REPO=${DOCKER_REPO}
 DOCKER_TAG_NAME=${DOCKER_TAG_NAME}
 EOF
 
@@ -178,11 +178,11 @@ EOF
 # This is used like ". ./ci-env-vars.sh"
 #
 function create_ci_vars() {
-  cat << EOF | sed 's/^\s+//g' > ci-env-vars.sh 
+  cat << EOF | sed 's/^\s+//g' > ci-env-vars.sh
      #!/bin/bash
      export REGISTRY_HOST=${REGISTRY_HOST}
      export VERSION=${VERSION}
-     export DOCKER_IMAGE=${DOCKER_IMAGE}
+     export DOCKER_REPO=${DOCKER_REPO}
      export DOCKER_TAG_NAME=${DOCKER_TAG_NAME}
 EOF
 
@@ -256,8 +256,12 @@ if [[ ${MODE} == "publish" ]]; then
       log "add-site-config" 
 
       echo "dockerTagName: ${DOCKER_TAG_NAME}" >> _site/_config.yml
-      echo "dockerImage: ${DOCKER_IMAGE}" >> _site/_config.yml
-      echo "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_IMAGE}" >> _site/_config.yml
+      echo "dockerRepo: ${DOCKER_REPO}" >> _site/_config.yml
+      echo "dockerImage: ${REGISTRY_HOST}/${DOCKER_REPO}" >> _site/_config.yml
+
+      # WARN: dockerImageFull is deprecated, use dockerImage instead
+      echo "dockerImageFull: ${REGISTRY_HOST}/${DOCKER_REPO}" >> _site/_config.yml
+
       echo "registryHost: ${REGISTRY_HOST}" >> _site/_config.yml
 
       log "_site/config.yml" cat _site/_config.yml
