@@ -48,14 +48,14 @@ function usage() {
   echo "  -p <REGISTRY_PASSWORD> - will look for this as ENV VAR REGISTRY_PASSWORD by default" 1>&2
   echo "  -r <REGISTRY_HOST>     - defaults to ${REGISTRY_HOST}" 1>&2
   echo 1>&2
-  echo "publish -e <git-email> -n <git-username> [ -i <user/docker-repo> | -d <full-docker-tag> ] [ -s ]"
-  echo "  -s                    - publish the site also"
-  echo "  -e <CI_EMAIL>        - used for _site doc publish-ing - defaults to ${CI_EMAIL}" 1>&2
-  echo "  -n <CI_USERNAME>     - used for _site doc publish-ing - defaults to ${CI_USERNAME}" 1>&2
+  echo "publish -e <git-email> -n <git-username> [ -i <docker-repo> | -d <docker-image> ] [ -s ]"
+  echo "  -s                     - publish the site also"
+  echo "  -e <CI_EMAIL>          - used for _site doc publish-ing - defaults to ${CI_EMAIL}" 1>&2
+  echo "  -n <CI_USERNAME>       - used for _site doc publish-ing - defaults to ${CI_USERNAME}" 1>&2
   echo
-  echo "  -i <DOCKER_REPO>     - Docker repository, e.g. user/tag" 1>&2
+  echo "  -i <DOCKER_REPO>       - Docker repository, e.g. user/tag" 1>&2
   echo " OR" 1>&2
-  echo "  -d <DOCKER_IMAGE>  - Docker image, e.g. registry/repo:tag" 1>&2
+  echo "  -d <DOCKER_IMAGE>      - Docker image, e.g. registry/repo:tag" 1>&2
 }
 
 
@@ -267,4 +267,3 @@ if [[ ${MODE} == "publish" ]]; then
     fi
   fi
 fi
-
