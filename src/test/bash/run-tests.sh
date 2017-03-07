@@ -4,6 +4,9 @@ export TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [[ ! -d "$TEST_PATH" ]]; then TEST_PATH="$PWD"; fi
 export MAIN_PATH=${TEST_PATH}/../../main/bash
 
+cases=${1:-'test-*'}
+
+
 . ${MAIN_PATH}/lib-ci
 
 function init() {
@@ -28,9 +31,11 @@ function cleanup() {
 }
 
 function run_tests() {
+  local cases="$1"
+
   cd ${TEST_PATH}
   # Run the tests
-  for i in $(find . -mindepth 1 -name 'test-*' -type f -print | sort); do
+  for i in $(find . -mindepth 1 -name "${cases}" -type f -print | sort); do
       echo ":: [$0] $i"
       bash $i
       if [ $? != 0 ]; then
@@ -46,5 +51,5 @@ function run_tests() {
 # main()
 #
 init
-run_tests
+run_tests "$cases"
 cleanup
