@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #   Copyright 2016 Commonwealth Bank of Australia
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@
 #   Usage:
 #   ./ci/ci-publish-site.sh <directory> [branch] [commit msg]
 #
-#   Branch defaults to "gh-pages", commit msg defaults to 
+#   Branch defaults to "gh-pages", commit msg defaults to
 #   "CI Documentation Update"
 #
 #   Example:
@@ -46,7 +46,7 @@ echo "[[[$dir]]]"
 branch="$2"
 commit_msg="$3"
 
-if [ -z "$dir" ]; then 
+if [ -z "$dir" ]; then
     echoerr "Directory cannot be blank."
     exit 1
 fi

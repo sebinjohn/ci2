@@ -45,7 +45,7 @@ if [ -z "$REPO_PATH" ] || [ -z "$ARTIFACT" ]; then
     echo "Upload an artifact to an Artifactory repository."
     echo "usage: $0 repo/path /local/path/to/artifact [meta1=val;meta2=val]"
     exit 1
-else 
+else
     echo "REPO_PATH=[${REPO_PATH}] - ARTIFACT=[${ARTIFACT}]"
 fi
 

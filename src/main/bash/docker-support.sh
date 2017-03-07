@@ -59,11 +59,11 @@ function usage() {
 }
 
 
-function indent() { 
+function indent() {
   echo $@ | sed 's/^/    /';
 }
 
-function log() { 
+function log() {
   echo ":: $1"
   shift
   $@ 2>&1 | sed 's/^/    /';
@@ -159,7 +159,7 @@ function set_vars() {
 }
 
 #
-# show the vars (just important ones, not secret ones) 
+# show the vars (just important ones, not secret ones)
 #
 function dump_vars() {
   cat << EOF
@@ -213,9 +213,9 @@ setup_default_vars
 
 set -o errexit
 
-if [[ -z ${1+x} ]];then 
+if [[ -z ${1+x} ]];then
    echo "Missing the 1st argument 'mode' (setup or publish)" 1>&2 && usage; exit 1;
-else 
+else
    MODE=$1
    shift
 fi
@@ -223,7 +223,7 @@ fi
 if [[ ${MODE} != "setup" && ${MODE} != "publish" ]]; then
   echo "Invalid mode ${MODE}" 1>&2
   usage
-  exit 1 
+  exit 1
 fi
 
 get_cmd_opts "$@"
@@ -242,7 +242,7 @@ fi
 
 if [[ ${MODE} == "publish" ]]; then
   log "vars-check" check_vars_docker_publish
-  # do we need to login ? 
+  # do we need to login ?
   if grep --quiet ${REGISTRY_HOST} ${HOME}/.docker/config.json; then
     log "docker-login -- already logged in ${REGISTRY_USERNAME}@${REGISTRY_HOST}" true
   else
@@ -253,7 +253,7 @@ if [[ ${MODE} == "publish" ]]; then
   if [[ "$SITE_PUBLISH" == "true" ]]; then
     log "vars-check-publish" check_vars_site_publish
     if [ -d _site ]; then
-      log "add-site-config" 
+      log "add-site-config"
 
       echo "dockerImage: ${DOCKER_IMAGE}" >> _site/_config.yml
       echo "dockerRegistry: ${REGISTRY_HOST}" >> _site/_config.yml

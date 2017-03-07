@@ -12,7 +12,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
- 
+
 # ci-nonrelease.sh <commands>
 #
 # If the release check in `lib-ci` returns non-zero it will run the specified commands otherwise it will

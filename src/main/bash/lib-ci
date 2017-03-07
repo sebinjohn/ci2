@@ -24,8 +24,8 @@ function echoerr() {
 }
 
 # The following set of hooks allow you to inline defer function and method calls
-# in bash until the script terminates. It *requires* a line like 
-# `trap "atexit_commands" INT TERM EXIT` in the body of the bash script in order to 
+# in bash until the script terminates. It *requires* a line like
+# `trap "atexit_commands" INT TERM EXIT` in the body of the bash script in order to
 # work. Functions are a stack, and are executed in reverse order.
 # Typical usage:
 # trap "atexit_commands ; exit 0" INT TERM EXIT
@@ -43,7 +43,7 @@ function atexit_commands() {
             echoerr "${atexit_hooks[$i]}"
             eval "${atexit_hooks[$i]}"
             # Blank elements don't eval to anything, so are removed.
-            atexit_hooks[$i]='' 
+            atexit_hooks[$i]=''
         done
     fi
 }
@@ -306,12 +306,12 @@ function Mktemp_Portable() {
 
   local tmpTemplate="${tmppath}/_tmp-${caller}.XXXXXXXXX"
 
-  if [[ ${tmptype} == "file" ]]; then 
+  if [[ ${tmptype} == "file" ]]; then
     theTmp=$( mktemp "${tmpTemplate}" )
-  elif [[ ${tmptype} == "dir" ]]; then 
+  elif [[ ${tmptype} == "dir" ]]; then
     theTmp=$( mktemp -d "${tmpTemplate}" )
-  else 
-    echo "usage: Mktemp_Portable [ file | dir ]" 1>&2 
+  else
+    echo "usage: Mktemp_Portable [ file | dir ]" 1>&2
     exit 1
   fi
   echo ${theTmp}

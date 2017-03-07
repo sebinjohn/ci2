@@ -15,7 +15,7 @@
 # RELEASE_BRANCHES environment variable can be set to an array of branches
 # for which `docker push` should be allowed to run. By default it is set to
 # `master`
-# 
+#
 # Example Usage:
 # ./ci/dockermake.sh build myimage1 myimage2 --build-arg=someval
 

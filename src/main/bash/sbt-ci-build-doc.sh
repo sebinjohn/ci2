@@ -63,7 +63,7 @@ if [ ! -e src/site/_config.yml ]; then
 fi
 
 echo "" >> src/site/_config.yml
-sed -i '/^releaseVersion: .*/d' src/site/_config.yml 
+sed -i '/^releaseVersion: .*/d' src/site/_config.yml
 echo "releaseVersion: $version" >> src/site/_config.yml
 
 # Builds documentation.
