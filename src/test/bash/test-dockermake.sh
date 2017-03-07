@@ -213,27 +213,19 @@ mkdir tmpDOCKERIMAGETOPUSH
 touch tmpDOCKERIMAGETOPUSH/Dockerfile
 
 # Try pushing on the current branch - it should not push the image
+rm "$MYTMPDIR/result_push"
 WVPASS "${SCRIPT_DIR}"/dockermake.sh push tmpDOCKERIMAGETOPUSH
-WVFAIL test -e "$MYTMPDIR/result_push"
+WVFAIL test ! -z $(grep 'push' "$MYTMPDIR/result_push")
 
 # Pretend we're on the master branch
 CI_SYSTEM=$(CI_Env_Get)
 export "${CI_SYSTEM}_BRANCH"='master'
 export "${CI_SYSTEM}_PULL_REQUEST"='false'
 
-# Do build and check for the correct arguments
+# Do build and check for a push
+rm "$MYTMPDIR/result_push"
 WVPASS "${SCRIPT_DIR}"/dockermake.sh push tmpDOCKERIMAGETOPUSH
-
-dockerArgs=( $(cat $MYTMPDIR/result_push) )
-
-expected=(\
-    "push" \
-    "PREFIXtmpDOCKERIMAGETOPUSH:$(cat VERSION)"
-    "rmi" \
-    "PREFIXtmpDOCKERIMAGETOPUSH:$(cat VERSION)"
-)
-
-WVPASSEQ "$(echo ${dockerArgs[@]})" "$(echo ${expected[@]})"
+WVFAIL test -z $(grep 'push' "$MYTMPDIR/result_push")
 
 cd ..
 
