@@ -45,9 +45,9 @@ if [[ -f $CI_VERSION_FILE ]]; then
 fi
 
 # Get a version number based on the Omnia standard:
-# major.minor.path-commish-timestamp for master branch
-# major.minor.path-commish-timestamp-PRNN for pull request NN
-# major.minor.path-commish-timestamp-branchname for branch branchname.
+# major.minor.path-timestamp-commish for master branch
+# major.minor.path-timestamp-commish-PRNN for pull request NN
+# major.minor.path-timestamp-commish-branchname for branch branchname.
 # Expects the source version number to be input.
 function Version_Setup() {
     CI_Env_Adapt $(CI_Env_Get)
