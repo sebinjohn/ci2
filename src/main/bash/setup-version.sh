@@ -52,7 +52,7 @@ fi
 function Version_Setup() {
     CI_Env_Adapt $(CI_Env_Get)
 
-    local source_version=$(echo "$1" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+")
+    local source_version=$(echo "$1" | grep -E -o "[0-9]+\.[0-9]+\.[0-9]+[-0-9.+a-zA-Z]*")
     if [ -z $source_version ]; then
         echo "Bad semantic version number. Version contents: $1" 1>&2
         exit 1
