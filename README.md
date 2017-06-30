@@ -7,11 +7,11 @@ Scripts used for Continuous Integration
 
 ## Overview
 
-ci2 is a "set" of CI helper scripts to assist with pushing, and publishing 
+ci2 is a "set" of CI helper scripts to assist with pushing, and publishing
 versions of code. It supports Travis, Drone and TeamCity.
 
-To depend on this REPO for use with Travis or Drone, add the following to your 
-``.travis.yml`` or ``.drone.yml``:
+To depend on this REPO for use with Travis, Drone or Jenkins, add the following to your
+``.travis.yml``, ``.drone.yml`` or ``Jenkinsfile``:
 
 ```
 curl https://commbank.artifactoryonline.com/commbank/binaries/ci/ci-<VERSION>.tar.gz | tar xz

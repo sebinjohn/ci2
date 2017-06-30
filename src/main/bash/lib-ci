@@ -43,7 +43,7 @@ function atexit_commands() {
             echoerr "${atexit_hooks[$i]}"
             eval "${atexit_hooks[$i]}"
             # Blank elements don't eval to anything, so are removed.
-            atexit_hooks[$i]='' 
+            atexit_hooks[$i]=''
         done
     fi
 }
@@ -69,6 +69,8 @@ function CI_Env_Get() {
         CI_SYSTEM=DRONE
     elif [ ! -z "${TEAMCITY_VERSION+x}" ]; then
         CI_SYSTEM=TEAMCITY
+	elif [ ! -z "${JENKINS_URL:+x}" ]; then
+		CI_SYSTEM=JENKINS
     elif [ ! -z "$ENABLE_LOCAL_CI" ]; then
         echo "ENABLE_LOCAL_CI is set - Assuming Local." 1>&2
         CI_SYSTEM=LOCAL
@@ -142,6 +144,18 @@ function CI_Env_Adapt() {
         CI_BUILD_URL="https://build.dev.cba/viewLog.html?buildId=${TEAMCITY_BUILD_ID}"
         CI_TAG="${TEAMCITY_TAG:-$(git name-rev --name-only --tags HEAD | sed 's/^undefined$//')}"
         ;;
+	JENKINS)
+        CI_NAME=jenkins
+        CI_REPO="${GIT_URL}"
+        CI_BRANCH="${BRANCH_NAME:-$(git symbolic-ref HEAD | cut -d'/' -f3-)}"
+        CI_COMMIT="${GIT_COMMIT:-$(git rev-parse HEAD)}"
+        CI_BUILD_NUMBER="${BUILD_NUMBER}"
+        CI_PULL_REQUEST="${JENKINS_PULL_REQUEST:-false}"
+        CI_JOB_NUMBER="${BUILD_ID}"
+        CI_BUILD_DIR="${WORKSPACE:-$(pwd)}"
+        CI_BUILD_URL="${BUILD_URL}"
+        CI_TAG="$(git name-rev --name-only --tags HEAD | sed 's/^undefined$//')"
+		;;
     LOCAL)
         if [ ! -z "$ENABLE_LOCAL_CI" ]; then
             # This is here because we want monotonically increasing job and build
